@@ -1,23 +1,47 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>HealthChain — Blockchain Insurance Platform</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,700;1,9..40,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="css/styles.css" />
 </head>
 <body>
 
-  <!-- Ambient background glow -->
-  <div class="bg-ambient"></div>
+  <!-- ═══════════════════════════════════════
+       AMBIENT + GRAIN BACKGROUND
+  ════════════════════════════════════════ -->
+  <div class="bg-ambient">
+    <div class="bg-blob bg-blob-1"></div>
+    <div class="bg-blob bg-blob-2"></div>
+    <div class="bg-blob bg-blob-3"></div>
+  </div>
+  <div class="bg-grain"></div>
 
-  <!-- Toast notifications -->
+  <!-- ═══════════════════════════════════════
+       THEME WIPE OVERLAY
+  ════════════════════════════════════════ -->
+  <div id="theme-wipe">
+    <div id="theme-wipe-bg"></div>
+  </div>
+
+  <!-- ═══════════════════════════════════════
+       CUSTOM CURSOR
+  ════════════════════════════════════════ -->
+  <div class="cursor-dot"  id="cur-dot"></div>
+  <div class="cursor-ring" id="cur-ring"></div>
+
+  <!-- ═══════════════════════════════════════
+       TOAST
+  ════════════════════════════════════════ -->
   <div id="toast-container"></div>
 
-  <!-- Shared navbar (hidden on landing page) -->
+  <!-- ═══════════════════════════════════════
+       SHARED NAVBAR (hidden on landing)
+  ════════════════════════════════════════ -->
   <nav class="navbar" id="main-nav" style="display:none;"></nav>
 
   <!-- ═══════════════════════════════════════
@@ -25,55 +49,112 @@
   ════════════════════════════════════════ -->
   <div id="page-landing" class="page">
 
+    <!-- Landing navigation -->
     <div class="landing-nav">
       <div class="flex items-center gap-3">
         <div class="navbar-logo">H</div>
         <span class="navbar-name">HealthChain</span>
       </div>
       <div class="flex items-center gap-3">
-        <span class="hide-mobile" style="font-size:0.82rem;color:var(--slate-500);">
-          HackOverflow 4.0 · PSIT &amp; AITM Kanpur
+        <span class="hide-mobile" style="font-size:0.76rem;color:var(--text-faint);font-family:var(--font-display);font-weight:600;">
+          HackOverflow 4.0 · PSIT &amp; AITM
         </span>
         <span class="badge badge-review">Sepolia Testnet</span>
+
+        <!-- ◀ THEME TOGGLE in landing nav -->
+        <button class="theme-toggle" id="theme-btn-landing" aria-label="Toggle theme">
+          <div class="theme-thumb" id="thumb-landing">🌙</div>
+        </button>
+
+        <button class="btn btn-primary btn-sm" id="connect-wallet-btn-nav">
+          Connect Wallet
+        </button>
       </div>
     </div>
 
+    <!-- Hero -->
     <div class="landing-hero page-content">
+      <div class="hero-orbs">
+        <div class="h-orb h-orb-1"></div>
+        <div class="h-orb h-orb-2"></div>
+        <div class="h-orb h-orb-3"></div>
+      </div>
+
       <div class="hero-eyebrow">
-        <span class="hero-eyebrow-dot"></span>
+        <span class="hero-eyebrow-pulse"></span>
         Blockchain + AI Healthcare Insurance
       </div>
+
       <h1 class="hero-title">
         Insurance claims<br>
         settled in <span class="hero-accent">24 hours</span>
       </h1>
+
       <p class="hero-desc">
         No paperwork. No weeks of waiting. No surprise rejections.
         HealthChain uses blockchain verification and AI fraud detection
-        to make health insurance transparent and instant.
+        to make health insurance transparent, instant, and fair.
       </p>
+
       <div class="hero-actions">
         <button class="btn btn-primary btn-lg" id="connect-wallet-btn">
-          🦊 Connect MetaMask
+          <span>🦊</span> Connect MetaMask
         </button>
-        <a href="#features" class="btn btn-outline btn-lg">See how it works</a>
+        <a href="#features" class="btn btn-outline btn-lg">How it works ↓</a>
       </div>
+
+      <!-- 3D Floating Card -->
+      <div class="hero-card-zone" id="hero-zone">
+        <div class="hero-3d-card" id="hero-card">
+          <div class="c3d-head">
+            <div class="c3d-brand">HealthChain</div>
+            <div class="c3d-chip">
+              <span class="c3d-dot-green"></span>
+              AI Verified
+            </div>
+          </div>
+          <div class="c3d-id">#CLAIM-2025-00847</div>
+          <div class="c3d-title">Cardiac Stent Procedure</div>
+          <div class="c3d-grid">
+            <div><div class="c3d-lbl">Amount</div><div class="c3d-val">₹4,80,000</div></div>
+            <div><div class="c3d-lbl">Fraud Score</div><div class="c3d-val">12 / 100 🟢</div></div>
+            <div><div class="c3d-lbl">Hospital</div><div class="c3d-val">AIIMS Delhi</div></div>
+            <div><div class="c3d-lbl">Policy</div><div class="c3d-val">HDFC-GOLD-T2</div></div>
+          </div>
+          <div class="c3d-foot">
+            <div class="c3d-status">
+              <span class="c3d-dot-green" style="width:8px;height:8px;"></span>
+              Approved · 18 hrs 23 min
+            </div>
+            <div class="c3d-hash">0x4f2a…b8c1 · Sepolia</div>
+          </div>
+        </div>
+        <div class="hero-pills">
+          <div class="hero-pill">
+            <span class="pill-dot" style="background:#059669;box-shadow:0 0 7px rgba(5,150,105,0.65);"></span>
+            AES-256 Encrypted
+          </div>
+          <div class="hero-pill">
+            <span class="pill-dot" style="background:#3b82f6;box-shadow:0 0 7px rgba(59,130,246,0.65);"></span>
+            On-Chain Verified
+          </div>
+          <div class="hero-pill">
+            <span class="pill-dot" style="background:#818cf8;box-shadow:0 0 7px rgba(129,140,248,0.65);"></span>
+            IPFS Storage
+          </div>
+        </div>
+      </div>
+
+      <!-- Stats -->
       <div class="hero-stats">
-        <div>
-          <div class="hero-stat-value">24hrs</div>
-          <div class="hero-stat-label">Average settlement</div>
-        </div>
-        <div>
-          <div class="hero-stat-value">0</div>
-          <div class="hero-stat-label">Document uploads</div>
-        </div>
-        <div>
-          <div class="hero-stat-value">100%</div>
-          <div class="hero-stat-label">Tamper-proof</div>
-        </div>
+        <div class="hero-stat"><div class="hero-stat-num">24hrs</div><div class="hero-stat-lbl">Average settlement</div></div>
+        <div class="hero-stat"><div class="hero-stat-num">0</div><div class="hero-stat-lbl">Document uploads</div></div>
+        <div class="hero-stat"><div class="hero-stat-num">100%</div><div class="hero-stat-lbl">Tamper-proof</div></div>
+        <div class="hero-stat"><div class="hero-stat-num">2.4s</div><div class="hero-stat-lbl">Avg fraud scan</div></div>
       </div>
     </div>
 
+    <!-- How it works -->
     <div class="flow-section" id="features">
       <div class="flow-inner">
         <div class="section-label">How it works</div>
@@ -82,35 +163,39 @@
       </div>
     </div>
 
+    <!-- Features -->
     <div class="features-section">
-      <div class="section-label">Why HealthChain</div>
-      <h2 class="section-title">Every layer built for trust</h2>
+      <div style="text-align:center;margin-bottom:60px;">
+        <div class="section-label">Why HealthChain</div>
+        <h2 class="section-title" style="margin-bottom:0;">Every layer built for trust</h2>
+      </div>
       <div class="features-grid" id="features-grid"></div>
     </div>
 
     <div class="landing-footer">
       Team Bits &amp; Gears — HackOverflow 4.0 — PSIT &amp; AITM, Kanpur, Uttar Pradesh
     </div>
-  </div>
+  </div><!-- /page-landing -->
+
 
   <!-- ═══════════════════════════════════════
        PAGE: DASHBOARD
   ════════════════════════════════════════ -->
-  <div id="page-dashboard" class="page">
-    <div class="page-content" style="padding:40px 0 60px;">
+  <div id="page-dashboard" class="page dash-page">
+    <div class="page-content dash-inner">
       <div class="container">
         <div class="flex items-center justify-between" style="margin-bottom:32px;">
           <div>
-            <h1 id="dash-title" style="margin-bottom:6px;">Dashboard</h1>
-            <p id="dash-subtitle" style="color:var(--slate-400);font-size:0.9rem;"></p>
+            <h1 id="dash-title" style="margin-bottom:5px;">Dashboard</h1>
+            <p id="dash-subtitle" style="font-size:0.875rem;font-weight:500;"></p>
           </div>
           <div class="flex gap-3" id="dash-actions"></div>
         </div>
         <div class="grid-4 stagger" id="dash-stats" style="margin-bottom:28px;"></div>
         <div class="card" style="padding:0;overflow:hidden;">
-          <div class="flex items-center justify-between" style="padding:20px 24px;border-bottom:1px solid var(--navy-700);">
+          <div class="flex items-center justify-between" style="padding:20px 26px;border-bottom:1px solid var(--border-faint);">
             <h3 id="claims-list-title">Claims</h3>
-            <span id="claims-count" style="font-size:0.82rem;color:var(--slate-500);"></span>
+            <span id="claims-count" style="font-size:0.80rem;color:var(--text-faint);font-weight:600;font-family:var(--font-display);"></span>
           </div>
           <div id="claims-list-body">
             <div class="empty-state">
@@ -123,90 +208,83 @@
     </div>
   </div>
 
+
   <!-- ═══════════════════════════════════════
        PAGE: CLAIM DETAIL
   ════════════════════════════════════════ -->
-  <div id="page-claim-detail" class="page">
-    <div class="page-content" style="padding:40px 0 60px;">
+  <div id="page-claim-detail" class="page dash-page">
+    <div class="page-content dash-inner">
       <div class="container--sm">
-        <a href="#/dashboard"
-           style="display:inline-flex;align-items:center;gap:8px;color:var(--slate-500);font-size:0.875rem;margin-bottom:28px;">
-          ← Back to Dashboard
+        <a href="#/dashboard" class="back-link"
+           style="display:inline-flex;align-items:center;gap:8px;color:var(--text-faint);font-size:0.86rem;margin-bottom:30px;font-weight:600;font-family:var(--font-display);transition:color 0.2s;">
+          ← Back
         </a>
         <div id="claim-detail-body">
-          <div class="empty-state">
-            <div class="spinner" style="margin:0 auto 16px;"></div>
-            Loading claim…
-          </div>
+          <div class="empty-state"><div class="spinner" style="margin:0 auto 16px;"></div>Loading claim…</div>
         </div>
       </div>
     </div>
   </div>
 
+
   <!-- ═══════════════════════════════════════
-       PAGE: PRESCRIPTION FORM
+       PAGE: PRESCRIPTION
   ════════════════════════════════════════ -->
-  <div id="page-prescribe" class="page">
-    <div class="page-content" style="padding:40px 0 60px;">
+  <div id="page-prescribe" class="page dash-page">
+    <div class="page-content dash-inner">
       <div class="container--sm">
-        <a href="#/dashboard"
-           style="display:inline-flex;align-items:center;gap:8px;color:var(--slate-500);font-size:0.875rem;margin-bottom:28px;">
-          ← Back to Dashboard
+        <a href="#/dashboard" class="back-link"
+           style="display:inline-flex;align-items:center;gap:8px;color:var(--text-faint);font-size:0.86rem;margin-bottom:30px;font-weight:600;font-family:var(--font-display);transition:color 0.2s;">
+          ← Back
         </a>
-        <h1 style="margin-bottom:8px;">New Prescription</h1>
-        <p style="color:var(--slate-400);font-size:0.9rem;margin-bottom:32px;">
+        <h1 style="margin-bottom:7px;">New Prescription</h1>
+        <p style="font-size:0.88rem;margin-bottom:32px;font-weight:500;">
           Write in plain English — AI will structure it into medical codes.
         </p>
-
-        <div class="card fade-in" style="margin-bottom:20px;">
+        <div class="card fade-in" style="margin-bottom:18px;">
           <div class="form-group" style="margin-bottom:20px;">
             <label class="form-label">Patient Wallet Address</label>
-            <input class="input" id="rx-patient-addr" placeholder="0x..." type="text" />
+            <input class="input" id="rx-patient-addr" placeholder="0x…" />
           </div>
-          <div class="form-group" style="margin-bottom:20px;">
+          <div class="form-group" style="margin-bottom:22px;">
             <label class="form-label">Clinical Notes</label>
-            <textarea class="textarea" id="rx-notes" style="min-height:140px;"
-              placeholder="Patient presents with high fever (39.5°C) for 3 days, sore throat and difficulty swallowing. Prescribed amoxicillin 500mg TDS for 7 days. Suspected bacterial tonsillitis…"></textarea>
+            <textarea class="textarea" id="rx-notes"
+              placeholder="Patient presents with high fever (39.5°C) for 3 days, sore throat and difficulty swallowing. Prescribed amoxicillin 500mg TDS for 7 days…"></textarea>
           </div>
           <button class="btn btn-primary btn-full" id="rx-ai-btn">🤖 Structure with AI</button>
         </div>
-
         <div id="rx-ai-result" style="display:none;">
-          <div class="card card--glow fade-in" style="margin-bottom:20px;">
-            <div class="flex items-center gap-2" style="margin-bottom:20px;">
-              <div style="width:8px;height:8px;background:var(--teal-400);border-radius:50%;"></div>
-              <h3 style="color:var(--teal-300);">AI-Structured Record</h3>
+          <div class="card card--glow fade-in" style="margin-bottom:18px;">
+            <div class="flex items-center gap-3" style="margin-bottom:20px;">
+              <div style="width:9px;height:9px;background:var(--info);border-radius:50%;box-shadow:0 0 9px currentColor;"></div>
+              <h3 style="color:var(--info);">AI-Structured Record</h3>
             </div>
             <div id="rx-structured-output"></div>
             <div class="divider"></div>
-            <button class="btn btn-primary btn-full" id="rx-save-btn">
-              ⛓️ Encrypt &amp; Save to Blockchain
-            </button>
+            <button class="btn btn-primary btn-full" id="rx-save-btn">⛓️ Encrypt &amp; Save to Blockchain</button>
           </div>
         </div>
-
         <div id="rx-success" style="display:none;" class="alert alert-success fade-in">
           <strong>✅ Record saved.</strong> Encrypted → IPFS → Blockchain.<br>
-          <span id="rx-success-detail" class="mono" style="font-size:0.78rem;"></span>
+          <span id="rx-success-detail" class="mono" style="font-size:0.74rem;"></span>
         </div>
       </div>
     </div>
   </div>
 
+
   <!-- ═══════════════════════════════════════
-       PAGE: HOSPITAL SEARCH
+       PAGE: HOSPITALS
   ════════════════════════════════════════ -->
-  <div id="page-hospitals" class="page">
-    <div class="page-content" style="padding:40px 0 60px;">
+  <div id="page-hospitals" class="page dash-page">
+    <div class="page-content dash-inner">
       <div class="container--sm">
-        <a href="#/dashboard"
-           style="display:inline-flex;align-items:center;gap:8px;color:var(--slate-500);font-size:0.875rem;margin-bottom:28px;">
-          ← Back to Dashboard
+        <a href="#/dashboard" class="back-link"
+           style="display:inline-flex;align-items:center;gap:8px;color:var(--text-faint);font-size:0.86rem;margin-bottom:30px;font-weight:600;font-family:var(--font-display);transition:color 0.2s;">
+          ← Back
         </a>
-        <h1 style="margin-bottom:8px;">Find Hospitals</h1>
-        <p id="hospital-subtitle" style="color:var(--slate-400);font-size:0.9rem;margin-bottom:32px;">
-          Showing hospitals covered by your insurance.
-        </p>
+        <h1 style="margin-bottom:7px;">Find Hospitals</h1>
+        <p id="hospital-subtitle" style="font-size:0.88rem;margin-bottom:32px;font-weight:500;">Showing hospitals covered by your insurance.</p>
         <div class="flex gap-3 fade-in" style="margin-bottom:20px;flex-wrap:wrap;">
           <input class="input" id="hospital-search" placeholder="Search by name or city…" style="flex:1;min-width:200px;" />
           <button class="btn btn-outline" id="hospital-filter-btn">✓ My Insurance Only</button>
@@ -216,20 +294,19 @@
     </div>
   </div>
 
+
   <!-- ═══════════════════════════════════════
        PAGE: SUBMIT CLAIM
   ════════════════════════════════════════ -->
-  <div id="page-submit-claim" class="page">
-    <div class="page-content" style="padding:40px 0 60px;">
+  <div id="page-submit-claim" class="page dash-page">
+    <div class="page-content dash-inner">
       <div class="container--sm">
-        <a href="#/dashboard"
-           style="display:inline-flex;align-items:center;gap:8px;color:var(--slate-500);font-size:0.875rem;margin-bottom:28px;">
-          ← Back to Dashboard
+        <a href="#/dashboard" class="back-link"
+           style="display:inline-flex;align-items:center;gap:8px;color:var(--text-faint);font-size:0.86rem;margin-bottom:30px;font-weight:600;font-family:var(--font-display);transition:color 0.2s;">
+          ← Back
         </a>
-        <h1 style="margin-bottom:8px;">Submit Insurance Claim</h1>
-        <p style="color:var(--slate-400);font-size:0.9rem;margin-bottom:32px;">
-          Fill in your treatment details. Your medical records are auto-fetched from blockchain.
-        </p>
+        <h1 style="margin-bottom:7px;">Submit Insurance Claim</h1>
+        <p style="font-size:0.88rem;margin-bottom:32px;font-weight:500;">Fill in your treatment details. Records are verified against blockchain.</p>
         <div class="card fade-in">
           <div class="form-group" style="margin-bottom:20px;">
             <label class="form-label">Hospital ID</label>
@@ -237,7 +314,7 @@
           </div>
           <div class="form-group" style="margin-bottom:20px;">
             <label class="form-label">IPFS CID (Medical Record)</label>
-            <input class="input" id="claim-ipfs-cid" placeholder="Qm..." />
+            <input class="input" id="claim-ipfs-cid" placeholder="Qm…" />
           </div>
           <div class="grid-2" style="margin-bottom:20px;">
             <div class="form-group">
@@ -253,7 +330,7 @@
             <label class="form-label">Diagnosis</label>
             <input class="input" id="claim-diagnosis" placeholder="e.g. Bacterial Tonsillitis" />
           </div>
-          <div class="grid-2" style="margin-bottom:28px;">
+          <div class="grid-2" style="margin-bottom:30px;">
             <div class="form-group">
               <label class="form-label">Admission Date</label>
               <input class="input" id="claim-admission" type="date" />
@@ -263,32 +340,25 @@
               <input class="input" id="claim-discharge" type="date" />
             </div>
           </div>
-          <button class="btn btn-primary btn-full btn-lg" id="claim-submit-btn">
-            Submit Claim
-          </button>
+          <button class="btn btn-primary btn-full btn-lg" id="claim-submit-btn">Submit Claim →</button>
         </div>
       </div>
     </div>
   </div>
 
+
   <!-- ═══════════════════════════════════════
        MODALS
   ════════════════════════════════════════ -->
-
-  <!-- Wallet connecting -->
   <div class="modal-backdrop" id="modal-connecting">
-    <div class="modal">
-      <div class="modal-header">
-        <span class="modal-title">Connecting Wallet</span>
-      </div>
-      <div style="text-align:center;padding:24px 0;">
-        <div class="spinner" style="width:40px;height:40px;border-width:3px;margin:0 auto 20px;"></div>
-        <p id="connecting-msg" style="color:var(--slate-400);">Waiting for MetaMask…</p>
-      </div>
+    <div class="modal" style="text-align:center;">
+      <div style="width:60px;height:60px;background:var(--bg-subtle);border:1.5px solid var(--border-default);border-radius:18px;display:flex;align-items:center;justify-content:center;font-size:1.9rem;margin:0 auto 22px;box-shadow:var(--shadow-sm);">🦊</div>
+      <h2 style="font-size:1.22rem;margin-bottom:10px;">Connecting Wallet</h2>
+      <p id="connecting-msg" style="font-size:0.88rem;margin-bottom:28px;font-weight:500;">Waiting for MetaMask…</p>
+      <div class="spinner" style="width:30px;height:30px;border-width:3px;margin:0 auto;"></div>
     </div>
   </div>
 
-  <!-- Error -->
   <div class="modal-backdrop" id="modal-error">
     <div class="modal">
       <div class="modal-header">
@@ -296,13 +366,16 @@
         <button class="modal-close" onclick="closeModal('modal-error')">✕</button>
       </div>
       <div class="alert alert-error" id="modal-error-msg"></div>
-      <div style="margin-top:20px;text-align:right;">
-        <button class="btn btn-outline" onclick="closeModal('modal-error')">Close</button>
+      <div style="margin-top:22px;text-align:right;">
+        <button class="btn btn-ghost" onclick="closeModal('modal-error')">Close</button>
       </div>
     </div>
   </div>
 
-  <!-- Scripts — load order matters -->
+
+  <!-- ═══════════════════════════════════════
+       SCRIPTS
+  ════════════════════════════════════════ -->
   <script src="js/api.js"></script>
   <script src="js/metamask.js"></script>
   <script src="js/app.js"></script>

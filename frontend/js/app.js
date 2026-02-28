@@ -1,13 +1,189 @@
 'use strict';
+/* ═══════════════════════════════════════════════════════════════════
+   HEALTHCHAIN — app.js
+   ═══════════════════════════════════════════════════════════════════ */
 
-/* ══════════════════════════════════════════
-   LANDING
-══════════════════════════════════════════ */
+/* ────────────────────────────────────────────────────────────────
+   THEME ENGINE — top-to-bottom wipe transition
+   ──────────────────────────────────────────────────────────────── */
+const Theme = {
+  STORAGE_KEY: 'hc_theme',
+
+  get current() {
+    return document.documentElement.getAttribute('data-theme') || 'light';
+  },
+
+  init() {
+    const saved = localStorage.getItem(this.STORAGE_KEY) || 'light';
+    this._apply(saved, false);
+    this._syncToggles(saved);
+  },
+
+  toggle() {
+    const next = this.current === 'light' ? 'dark' : 'light';
+    this._wipe(next);
+  },
+
+  _wipe(next) {
+    const wipe    = document.getElementById('theme-wipe');
+    const wipeBg  = document.getElementById('theme-wipe-bg');
+    if (!wipe || !wipeBg) { this._apply(next); return; }
+
+    /* The curtain colour = the DESTINATION theme's background */
+    const curtainColor = next === 'dark' ? '#040c1e' : '#f5f8ff';
+    wipeBg.style.background = curtainColor;
+
+    wipe.classList.add('active');
+
+    /* At the halfway point (curtain fully covers screen) — swap theme */
+    const halfDuration = 68 * 4.5; /* ~306ms — slightly past the 42% mark */
+    setTimeout(() => {
+      this._apply(next, false);
+    }, halfDuration);
+
+    /* Clean up after animation */
+    wipe.addEventListener('animationend', () => {
+      wipe.classList.remove('active');
+    }, { once: true });
+  },
+
+  _apply(theme, animate = true) {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem(this.STORAGE_KEY, theme);
+    this._syncToggles(theme);
+  },
+
+  _syncToggles(theme) {
+    /* All toggle thumbs across navbar/landing */
+    document.querySelectorAll('.theme-thumb').forEach(el => {
+      el.textContent = theme === 'dark' ? '☀️' : '🌙';
+    });
+    /* Aria */
+    document.querySelectorAll('.theme-toggle').forEach(btn => {
+      btn.setAttribute('aria-label', theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode');
+    });
+  },
+};
+
+/* ────────────────────────────────────────────────────────────────
+   CURSOR
+   ──────────────────────────────────────────────────────────────── */
+const Cursor = {
+  dot:   null,
+  ring:  null,
+  mx: 0, my: 0,
+  rx: 0, ry: 0,
+  raf:   null,
+
+  init() {
+    this.dot  = document.getElementById('cur-dot');
+    this.ring = document.getElementById('cur-ring');
+    if (!this.dot || !this.ring || window.matchMedia('(pointer: coarse)').matches) return;
+
+    document.addEventListener('mousemove', e => { this.mx = e.clientX; this.my = e.clientY; });
+    this._tick();
+
+    /* Hover grow */
+    document.addEventListener('mouseover', e => {
+      if (e.target.matches('button, a, .btn, .claim-row, .feature-card, .step-item, .hero-pill, input, textarea')) {
+        document.body.classList.add('on-interactive');
+      }
+    });
+    document.addEventListener('mouseout', e => {
+      if (e.target.matches('button, a, .btn, .claim-row, .feature-card, .step-item, .hero-pill, input, textarea')) {
+        document.body.classList.remove('on-interactive');
+      }
+    });
+  },
+
+  _tick() {
+    this.dot.style.left = this.mx + 'px';
+    this.dot.style.top  = this.my + 'px';
+    this.rx += (this.mx - this.rx) * 0.11;
+    this.ry += (this.my - this.ry) * 0.11;
+    this.ring.style.left = this.rx + 'px';
+    this.ring.style.top  = this.ry + 'px';
+    this.raf = requestAnimationFrame(() => this._tick());
+  },
+};
+
+/* ────────────────────────────────────────────────────────────────
+   HERO 3D CARD PARALLAX
+   ──────────────────────────────────────────────────────────────── */
+const HeroCard = {
+  zone: null,
+  card: null,
+
+  init() {
+    this.zone = document.getElementById('hero-zone');
+    this.card = document.getElementById('hero-card');
+    if (!this.zone || !this.card) return;
+
+    this.zone.addEventListener('mousemove', e => this._onMove(e));
+    this.zone.addEventListener('mouseleave', ()  => this._onLeave());
+    this.zone.addEventListener('touchmove',  e => this._onTouch(e), { passive: true });
+  },
+
+  _onMove(e) {
+    const r  = this.zone.getBoundingClientRect();
+    const cx = r.left + r.width  / 2;
+    const cy = r.top  + r.height / 2;
+    const rx = ((e.clientY - cy) / r.height) * 20;
+    const ry = -((e.clientX - cx) / r.width)  * 20;
+    this.card.style.transition = 'none';
+    this.card.style.animation  = 'none';
+    this.card.style.transform  = `rotateX(${rx}deg) rotateY(${ry}deg) translateY(-10px) scale(1.015)`;
+  },
+
+  _onTouch(e) {
+    const touch = e.touches[0];
+    const fakeEvent = { clientX: touch.clientX, clientY: touch.clientY };
+    this._onMove(fakeEvent);
+  },
+
+  _onLeave() {
+    this.card.style.transition = 'transform 0.85s cubic-bezier(0.4,0,0.2,1)';
+    this.card.style.animation  = 'floatCard 11s ease-in-out infinite';
+  },
+};
+
+/* ────────────────────────────────────────────────────────────────
+   SCROLL REVEAL
+   ──────────────────────────────────────────────────────────────── */
+const ScrollReveal = {
+  observer: null,
+  init() {
+    if (!window.IntersectionObserver) return;
+    this.observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.style.opacity  = '1';
+          entry.target.style.transform = 'translateY(0)';
+          this.observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.08 });
+  },
+
+  observe(selector) {
+    if (!this.observer) return;
+    document.querySelectorAll(selector).forEach(el => {
+      el.style.opacity  = '0';
+      el.style.transform = 'translateY(18px)';
+      el.style.transition = 'opacity 0.5s ease, transform 0.5s cubic-bezier(0.4,0,0.2,1)';
+      this.observer.observe(el);
+    });
+  },
+};
+
+/* ────────────────────────────────────────────────────────────────
+   LANDING PAGE
+   ──────────────────────────────────────────────────────────────── */
 function initLanding() {
   renderPage('page-landing');
   document.getElementById('main-nav').style.display = 'none';
 
-  // Step flow
+  /* Step flow */
   const steps = [
     'Doctor writes prescription',
     'AI structures medical codes',
@@ -23,20 +199,20 @@ function initLanding() {
     flowEl.innerHTML = steps.map((s, i) => `
       <div class="step-item">
         <span class="step-num">${i + 1}</span>
-        <span style="font-size:0.82rem;color:var(--slate-300);">${s}</span>
+        <span>${s}</span>
       </div>
       ${i < steps.length - 1 ? '<span class="step-arrow">→</span>' : ''}
     `).join('');
   }
 
-  // Features
+  /* Features */
   const features = [
     { icon: '⛓️', title: 'Blockchain-Verified',   desc: 'Every claim is registered on Ethereum — tamper-proof and transparent forever.' },
     { icon: '🤖', title: 'AI Fraud Detection',     desc: 'Machine learning scans every claim for anomalies before an insurer sees it.' },
-    { icon: '🔐', title: 'AES-256 Encryption',     desc: 'Your medical data is encrypted before it leaves your device.' },
+    { icon: '🔐', title: 'AES-256 Encryption',     desc: 'Your medical data is encrypted before it ever leaves your device.' },
     { icon: '⚡', title: '24-Hour Settlement',      desc: 'Smart contracts auto-approve eligible claims — no 2–4 week waits.' },
     { icon: '🏥', title: 'Hospital Compatibility', desc: 'Instantly see which hospitals your insurance covers before you visit.' },
-    { icon: '📝', title: 'Plain English',           desc: 'AI rewrites dense rejection reasons into language anyone can understand.' },
+    { icon: '📝', title: 'Plain English AI',        desc: 'AI rewrites dense rejection reasons into language anyone can understand.' },
   ];
   const grid = document.getElementById('features-grid');
   if (grid) {
@@ -47,19 +223,39 @@ function initLanding() {
         <div class="feature-desc">${f.desc}</div>
       </div>
     `).join('');
+    /* Trigger scroll reveal */
+    setTimeout(() => ScrollReveal.observe('.feature-card, .step-item'), 50);
   }
 
+  /* Button events */
   document.getElementById('connect-wallet-btn')
     ?.addEventListener('click', handleConnect);
+  document.getElementById('connect-wallet-btn-nav')
+    ?.addEventListener('click', handleConnect);
+
+  /* Smooth scroll for anchor */
+  document.querySelectorAll('a[href="#features"]').forEach(a => {
+    a.addEventListener('click', e => {
+      const t = document.getElementById('features');
+      if (t) { e.preventDefault(); t.scrollIntoView({ behavior: 'smooth' }); }
+    });
+  });
+
+  /* Init hero card parallax */
+  HeroCard.init();
+
+  /* Theme toggle in landing nav */
+  document.getElementById('theme-btn-landing')
+    ?.addEventListener('click', () => Theme.toggle());
 }
 
 async function handleConnect() {
-  const msgEl = document.getElementById('connecting-msg');
   openModal('modal-connecting');
+  const msgEl = document.getElementById('connecting-msg');
   try {
     if (msgEl) msgEl.textContent = 'Requesting wallet access…';
     await MetaMask.connect();
-    if (msgEl) msgEl.textContent = 'Authenticated! Redirecting…';
+    if (msgEl) msgEl.textContent = 'Authenticated — redirecting…';
     setTimeout(() => { closeModal('modal-connecting'); Router.navigate('/dashboard'); }, 600);
   } catch (err) {
     closeModal('modal-connecting');
@@ -68,13 +264,12 @@ async function handleConnect() {
   }
 }
 
-/* ══════════════════════════════════════════
+/* ────────────────────────────────────────────────────────────────
    DASHBOARD
-══════════════════════════════════════════ */
+   ──────────────────────────────────────────────────────────────── */
 async function initDashboard() {
   renderPage('page-dashboard');
   renderNavbar();
-
   const user = Auth.user;
   if (!user) return;
 
@@ -92,8 +287,8 @@ async function initDashboard() {
   if (actionsEl) {
     if (user.role === 'patient') {
       actionsEl.innerHTML = `
-        <a href="#/hospitals"     class="btn btn-outline btn-sm">🏥 Find Hospitals</a>
-        <a href="#/submit-claim"  class="btn btn-primary btn-sm">+ Submit Claim</a>
+        <a href="#/hospitals"    class="btn btn-ghost btn-sm">🏥 Hospitals</a>
+        <a href="#/submit-claim" class="btn btn-primary btn-sm">+ Submit Claim</a>
       `;
     } else if (user.role === 'doctor') {
       actionsEl.innerHTML = `<a href="#/prescribe" class="btn btn-primary btn-sm">+ New Prescription</a>`;
@@ -107,9 +302,7 @@ async function initDashboard() {
   try {
     const data = await API.claims.getAll();
     claims = data.claims || [];
-  } catch (err) {
-    Toast.error('Failed to load claims');
-  }
+  } catch (err) { Toast.error('Failed to load claims'); }
 
   renderDashStats(claims);
   renderClaimsList(claims, user.role);
@@ -119,10 +312,10 @@ function renderDashStats(claims) {
   const el = document.getElementById('dash-stats');
   if (!el) return;
   const stats = [
-    { label: 'Total',    value: claims.length,                                              color: 'var(--white)' },
-    { label: 'Pending',  value: claims.filter(c => c.status === 'pending').length,           color: 'var(--amber-400)' },
-    { label: 'Approved', value: claims.filter(c => c.status === 'approved').length,          color: 'var(--green-400)' },
-    { label: 'Rejected', value: claims.filter(c => c.status === 'rejected').length,          color: 'var(--red-400)' },
+    { label: 'Total',       value: claims.length,                                    color: 'var(--text-primary)' },
+    { label: 'Pending',     value: claims.filter(c => c.status === 'pending').length,  color: 'var(--warning)' },
+    { label: 'Approved',    value: claims.filter(c => c.status === 'approved').length, color: 'var(--success)' },
+    { label: 'Rejected',    value: claims.filter(c => c.status === 'rejected').length, color: 'var(--danger)' },
   ];
   el.innerHTML = stats.map(s => `
     <div class="stat-card">
@@ -156,9 +349,11 @@ function renderClaimsList(claims, role) {
         <div class="claim-row-sub">
           ${statusBadge(c.status)}
           ${role === 'insurer' && c.fraudScore != null
-            ? `<span class="mono" style="font-size:0.75rem;margin-left:8px;color:${c.fraudScore < 30 ? 'var(--green-400)' : c.fraudScore < 70 ? 'var(--amber-400)' : 'var(--red-400)'}">Fraud: ${c.fraudScore}/100</span>`
+            ? `<span class="mono" style="font-size:0.72rem;color:${fraudColor(c.fraudScore) === 'fraud-low' ? 'var(--success)' : fraudColor(c.fraudScore) === 'fraud-mid' ? 'var(--warning)' : 'var(--danger)'}">
+                Fraud: ${c.fraudScore}/100
+               </span>`
             : ''}
-          <span style="color:var(--slate-600);font-size:0.78rem;margin-left:8px;">${formatDate(c.createdAt)}</span>
+          <span style="font-size:0.74rem;">${formatDate(c.createdAt)}</span>
         </div>
       </div>
       <div class="claim-row-right">
@@ -169,13 +364,12 @@ function renderClaimsList(claims, role) {
   `).join('');
 }
 
-/* ══════════════════════════════════════════
+/* ────────────────────────────────────────────────────────────────
    CLAIM DETAIL
-══════════════════════════════════════════ */
+   ──────────────────────────────────────────────────────────────── */
 async function initClaimDetail(id) {
   renderPage('page-claim-detail');
   renderNavbar();
-
   const body = document.getElementById('claim-detail-body');
   if (!body) return;
 
@@ -192,13 +386,10 @@ async function initClaimDetail(id) {
 
   body.innerHTML = `
     <div class="stagger">
-
-      <div class="card fade-in" style="margin-bottom:20px;">
-        <div class="flex items-center justify-between" style="margin-bottom:20px;">
+      <div class="card fade-in" style="margin-bottom:18px;">
+        <div class="flex items-center justify-between" style="margin-bottom:18px;">
           <div>
-            <div class="mono" style="font-size:0.75rem;color:var(--slate-500);margin-bottom:6px;">
-              Claim #${claim._id?.slice(-12)}
-            </div>
+            <div class="mono" style="font-size:0.68rem;color:var(--text-faint);margin-bottom:5px;">Claim #${claim._id?.slice(-12)}</div>
             <h2>${claim.diagnosis || 'Medical Claim'}</h2>
           </div>
           ${statusBadge(claim.status)}
@@ -215,77 +406,64 @@ async function initClaimDetail(id) {
         </div>
       </div>
 
-      <div class="card fade-in" style="margin-bottom:20px;">
+      <div class="card fade-in" style="margin-bottom:18px;">
         <h3 style="margin-bottom:16px;">⛓️ Blockchain Verification</h3>
         ${claim.ipfsCid ? `
-          <div style="margin-bottom:16px;">
-            <div class="form-label" style="margin-bottom:8px;">IPFS CID</div>
+          <div style="margin-bottom:14px;">
+            <div class="form-label" style="margin-bottom:7px;">IPFS CID</div>
             <div class="cid-box">${claim.ipfsCid}</div>
           </div>` : ''}
         ${claim.blockchainTxHash ? `
           <div>
-            <div class="form-label" style="margin-bottom:8px;">Ethereum Transaction</div>
-            <a href="https://sepolia.etherscan.io/tx/${claim.blockchainTxHash}"
-               target="_blank" rel="noopener" class="cid-box"
-               style="display:block;color:var(--teal-400);">
+            <div class="form-label" style="margin-bottom:7px;">Ethereum Transaction</div>
+            <a href="https://sepolia.etherscan.io/tx/${claim.blockchainTxHash}" target="_blank" rel="noopener" class="cid-box" style="display:block;color:var(--text-accent);">
               ${claim.blockchainTxHash} ↗
             </a>
-          </div>` : `<div class="alert alert-warning" style="font-size:0.85rem;">Transaction pending.</div>`}
+          </div>` : `<div class="alert alert-warning" style="font-size:0.84rem;">Transaction pending.</div>`}
       </div>
 
       ${claim.fraudScore != null ? `
-        <div class="card fade-in" style="margin-bottom:20px;">
+        <div class="card fade-in" style="margin-bottom:18px;">
           <h3 style="margin-bottom:16px;">🤖 AI Fraud Analysis</h3>
-          <div class="flex items-center gap-4" style="margin-bottom:16px;">
-            <div style="font-size:3rem;font-weight:900;color:var(--white);line-height:1;">${claim.fraudScore}</div>
+          <div class="flex items-center gap-4" style="margin-bottom:14px;">
+            <div style="font-size:2.8rem;font-weight:900;color:var(--text-primary);line-height:1;font-family:var(--font-display);">${claim.fraudScore}</div>
             <div style="flex:1;">
-              <div style="font-size:0.82rem;color:var(--slate-400);margin-bottom:8px;">Risk Score (0 = clean, 100 = suspicious)</div>
-              <div class="fraud-bar">
-                <div class="fraud-bar-fill ${fraudColor(claim.fraudScore)}" style="width:${claim.fraudScore}%;"></div>
-              </div>
+              <div style="font-size:0.78rem;color:var(--text-muted);margin-bottom:7px;">Risk Score (0 = clean, 100 = suspicious)</div>
+              <div class="fraud-bar"><div class="fraud-bar-fill ${fraudColor(claim.fraudScore)}" style="width:${claim.fraudScore}%;"></div></div>
             </div>
           </div>
           ${(claim.fraudConcerns || []).map(c => `
-            <div style="display:flex;align-items:flex-start;gap:8px;font-size:0.875rem;color:var(--slate-400);margin-bottom:6px;">
-              <span style="color:var(--amber-400);">⚠</span>${c}
+            <div style="display:flex;align-items:flex-start;gap:8px;font-size:0.85rem;color:var(--text-muted);margin-bottom:6px;">
+              <span style="color:var(--warning);">⚠</span>${c}
             </div>
           `).join('')}
-        </div>
-      ` : ''}
+        </div>` : ''}
 
       ${claim.aiExplanation ? `
-        <div class="card card--glow fade-in" style="margin-bottom:20px;">
-          <h3 style="color:var(--teal-300);margin-bottom:12px;">💬 What this means for you</h3>
-          <p style="color:var(--slate-300);line-height:1.7;font-size:0.9rem;">${claim.aiExplanation}</p>
-        </div>
-      ` : ''}
+        <div class="card card--glow fade-in" style="margin-bottom:18px;">
+          <h3 style="color:var(--info);margin-bottom:11px;">💬 What this means for you</h3>
+          <p style="line-height:1.75;font-size:0.88rem;">${claim.aiExplanation}</p>
+        </div>` : ''}
 
       ${isInsurer && claim.status === 'pending' ? `
         <div class="card fade-in">
-          <h3 style="margin-bottom:16px;">Resolve Claim</h3>
-          <div class="form-group" style="margin-bottom:20px;">
+          <h3 style="margin-bottom:15px;">Resolve Claim</h3>
+          <div class="form-group" style="margin-bottom:18px;">
             <label class="form-label">Rejection Reason (required if rejecting)</label>
             <textarea class="textarea" id="rejection-reason"
               placeholder="e.g. ICD-10 mismatch — procedure not covered under policy tier 2…"
-              style="min-height:100px;"></textarea>
+              style="min-height:90px;"></textarea>
           </div>
           <div class="flex gap-3">
-            <button class="btn btn-primary"
-              style="flex:1;justify-content:center;"
-              id="approve-btn" data-id="${claim._id}">✓ Approve</button>
-            <button class="btn btn-danger"
-              style="flex:1;justify-content:center;"
-              id="reject-btn"  data-id="${claim._id}">✗ Reject</button>
+            <button class="btn btn-primary" style="flex:1;justify-content:center;" id="approve-btn" data-id="${claim._id}">✓ Approve</button>
+            <button class="btn btn-danger"  style="flex:1;justify-content:center;" id="reject-btn"  data-id="${claim._id}">✗ Reject</button>
           </div>
-        </div>
-      ` : ''}
-
+        </div>` : ''}
     </div>
   `;
 
   document.getElementById('approve-btn')
     ?.addEventListener('click', () => resolveClaim(claim._id, 'approved'));
-
   document.getElementById('reject-btn')
     ?.addEventListener('click', () => {
       const reason = document.getElementById('rejection-reason')?.value?.trim();
@@ -297,12 +475,8 @@ async function initClaimDetail(id) {
 function dRow(label, value, mono = false) {
   return `
     <div>
-      <div style="font-size:0.75rem;color:var(--slate-500);text-transform:uppercase;
-                  letter-spacing:0.04em;margin-bottom:4px;">${label}</div>
-      <div style="font-size:0.9rem;
-                  color:${mono ? 'var(--teal-400)' : 'var(--slate-300)'};
-                  font-family:${mono ? 'var(--font-mono)' : 'inherit'};
-                  word-break:break-all;">${value}</div>
+      <div style="font-size:0.68rem;color:var(--text-faint);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:4px;font-family:var(--font-display);font-weight:800;">${label}</div>
+      <div style="font-size:0.88rem;color:${mono ? 'var(--text-accent)' : 'var(--text-secondary)'};font-family:${mono ? 'var(--font-mono)' : 'inherit'};word-break:break-all;">${value}</div>
     </div>`;
 }
 
@@ -310,7 +484,6 @@ async function resolveClaim(id, decision, reason = '') {
   const btnId = decision === 'approved' ? 'approve-btn' : 'reject-btn';
   const btn   = document.getElementById(btnId);
   if (btn) setLoading(btn, true, decision === 'approved' ? 'Approving…' : 'Rejecting…');
-
   try {
     await API.claims.resolve(id, decision, reason);
     Toast.success(`Claim ${decision} successfully.`);
@@ -321,32 +494,28 @@ async function resolveClaim(id, decision, reason = '') {
   }
 }
 
-/* ══════════════════════════════════════════
-   PRESCRIPTION FORM
-══════════════════════════════════════════ */
+/* ────────────────────────────────────────────────────────────────
+   PRESCRIPTION
+   ──────────────────────────────────────────────────────────────── */
 let rxStructured = null;
 
 function initPrescribe() {
   renderPage('page-prescribe');
   renderNavbar();
   rxStructured = null;
-
   const resultEl  = document.getElementById('rx-ai-result');
   const successEl = document.getElementById('rx-success');
   if (resultEl)  resultEl.style.display  = 'none';
   if (successEl) successEl.style.display = 'none';
-
-  document.getElementById('rx-ai-btn').onclick  = handleRxAI;
-  document.getElementById('rx-save-btn').onclick = handleRxSave;
+  document.getElementById('rx-ai-btn').onclick   = handleRxAI;
+  document.getElementById('rx-save-btn').onclick  = handleRxSave;
 }
 
 async function handleRxAI() {
   const notes = document.getElementById('rx-notes')?.value?.trim();
   if (!notes) { Toast.error('Please enter clinical notes.'); return; }
-
   const btn = document.getElementById('rx-ai-btn');
   setLoading(btn, true, 'AI is structuring…');
-
   try {
     const data = await API.ai.prescriptionAssist(notes);
     rxStructured = data.structured;
@@ -354,40 +523,24 @@ async function handleRxAI() {
     document.getElementById('rx-ai-result').style.display = 'block';
   } catch (err) {
     Toast.error(`AI failed: ${err.message}`);
-  } finally {
-    setLoading(btn, false);
-  }
+  } finally { setLoading(btn, false); }
 }
 
 function renderRxStructured(s) {
   const el = document.getElementById('rx-structured-output');
   if (!el || !s) return;
-
   const meds = (s.medications || []).map(m => `
-    <div style="background:var(--navy-700);border-radius:6px;padding:10px 14px;
-                font-size:0.875rem;margin-bottom:8px;">
-      <span style="color:var(--white);font-weight:600;">${m.name}</span>
-      <span style="color:var(--slate-400);margin-left:8px;">
-        ${m.dosage} · ${m.frequency} · ${m.duration}
-      </span>
-    </div>
-  `).join('');
-
+    <div style="background:var(--bg-subtle);border:1px solid var(--border-faint);border-radius:var(--r-sm);padding:9px 13px;font-size:0.85rem;margin-bottom:7px;">
+      <span style="font-weight:700;color:var(--text-primary);">${m.name}</span>
+      <span style="color:var(--text-muted);margin-left:8px;">${m.dosage} · ${m.frequency} · ${m.duration}</span>
+    </div>`).join('');
   el.innerHTML = `
-    <div class="grid-2" style="margin-bottom:20px;">
-      ${dRow('Diagnosis',   s.diagnosis   || '—')}
-      ${dRow('ICD-10 Code', s.icd10Code   || '—', true)}
+    <div class="grid-2" style="margin-bottom:18px;">
+      ${dRow('Diagnosis', s.diagnosis || '—')}
+      ${dRow('ICD-10 Code', s.icd10Code || '—', true)}
     </div>
-    ${meds ? `
-      <div style="margin-bottom:16px;">
-        <div class="form-label" style="margin-bottom:10px;">Medications</div>
-        ${meds}
-      </div>` : ''}
-    ${s.notes ? `
-      <div>
-        <div class="form-label" style="margin-bottom:6px;">Additional Notes</div>
-        <div style="font-size:0.875rem;color:var(--slate-400);">${s.notes}</div>
-      </div>` : ''}
+    ${meds ? `<div style="margin-bottom:14px;"><div class="form-label" style="margin-bottom:9px;">Medications</div>${meds}</div>` : ''}
+    ${s.notes ? `<div><div class="form-label" style="margin-bottom:5px;">Notes</div><p style="font-size:0.85rem;">${s.notes}</p></div>` : ''}
   `;
 }
 
@@ -395,43 +548,31 @@ async function handleRxSave() {
   const addr = document.getElementById('rx-patient-addr')?.value?.trim();
   if (!addr) { Toast.error('Please enter the patient wallet address.'); return; }
   if (!rxStructured) { Toast.error('Run AI structuring first.'); return; }
-
   const btn = document.getElementById('rx-save-btn');
   setLoading(btn, true, 'Encrypting & uploading…');
-
   try {
     const data = await API.records.upload({
       patientWalletAddress: addr,
-      recordData: {
-        ...rxStructured,
-        rawNotes:  document.getElementById('rx-notes')?.value,
-        createdAt: new Date().toISOString(),
-      },
+      recordData: { ...rxStructured, rawNotes: document.getElementById('rx-notes')?.value, createdAt: new Date().toISOString() },
     });
     document.getElementById('rx-success').style.display = 'block';
-    document.getElementById('rx-success-detail').textContent =
-      `IPFS: ${data.ipfsCid}  ·  Tx: ${data.txHash?.slice(0, 20)}…`;
+    document.getElementById('rx-success-detail').textContent = `IPFS: ${data.ipfsCid}  ·  Tx: ${data.txHash?.slice(0, 22)}…`;
     Toast.success('Record saved to blockchain!');
   } catch (err) {
     Toast.error(`Save failed: ${err.message}`);
-  } finally {
-    setLoading(btn, false);
-  }
+  } finally { setLoading(btn, false); }
 }
 
-/* ══════════════════════════════════════════
-   HOSPITAL SEARCH
-══════════════════════════════════════════ */
-let allHospitals      = [];
-let coveredIds        = new Set();
-let hospitalFilter    = true;
+/* ────────────────────────────────────────────────────────────────
+   HOSPITALS
+   ──────────────────────────────────────────────────────────────── */
+let allHospitals = [], coveredIds = new Set(), hospitalFilter = true;
 
 async function initHospitals() {
   renderPage('page-hospitals');
   renderNavbar();
   hospitalFilter = true;
   updateHospitalFilterBtn();
-
   try {
     const [covRes, allRes] = await Promise.all([
       API.hospitals.getAll(true),
@@ -439,32 +580,24 @@ async function initHospitals() {
     ]);
     coveredIds   = new Set((covRes.hospitals || []).map(h => h._id));
     allHospitals = allRes.hospitals || [];
-  } catch (err) {
-    Toast.error('Failed to load hospitals');
-  }
-
+  } catch (err) { Toast.error('Failed to load hospitals'); }
   renderHospitals();
-
-  document.getElementById('hospital-search')
-    ?.addEventListener('input', renderHospitals);
-
-  document.getElementById('hospital-filter-btn')
-    ?.addEventListener('click', () => {
-      hospitalFilter = !hospitalFilter;
-      updateHospitalFilterBtn();
-      renderHospitals();
-    });
+  document.getElementById('hospital-search')?.addEventListener('input', renderHospitals);
+  document.getElementById('hospital-filter-btn')?.addEventListener('click', () => {
+    hospitalFilter = !hospitalFilter;
+    updateHospitalFilterBtn();
+    renderHospitals();
+  });
 }
 
 function updateHospitalFilterBtn() {
   const btn = document.getElementById('hospital-filter-btn');
   const sub = document.getElementById('hospital-subtitle');
   if (!btn) return;
-
   if (hospitalFilter) {
     btn.textContent = '✓ My Insurance Only';
-    btn.style.borderColor = 'rgba(0,212,200,0.4)';
-    btn.style.color       = 'var(--teal-400)';
+    btn.style.borderColor = 'var(--border-strong)';
+    btn.style.color       = 'var(--info)';
     if (sub) sub.textContent = 'Showing hospitals covered by your insurance.';
   } else {
     btn.textContent = 'All Hospitals';
@@ -475,65 +608,41 @@ function updateHospitalFilterBtn() {
 }
 
 function renderHospitals() {
-  const query = (document.getElementById('hospital-search')?.value || '').toLowerCase();
-  const list  = document.getElementById('hospitals-list');
+  const query   = (document.getElementById('hospital-search')?.value || '').toLowerCase();
+  const list    = document.getElementById('hospitals-list');
   if (!list) return;
-
-  let hospitals = hospitalFilter
-    ? allHospitals.filter(h => coveredIds.has(h._id))
-    : allHospitals;
-
-  if (query) {
-    hospitals = hospitals.filter(h =>
-      h.name.toLowerCase().includes(query) ||
-      (h.location?.city || '').toLowerCase().includes(query)
-    );
-  }
-
+  let hospitals = hospitalFilter ? allHospitals.filter(h => coveredIds.has(h._id)) : allHospitals;
+  if (query) hospitals = hospitals.filter(h => h.name.toLowerCase().includes(query) || (h.location?.city||'').toLowerCase().includes(query));
   if (!hospitals.length) {
-    list.innerHTML = `
-      <div class="empty-state">
-        <div class="empty-state-icon">🏥</div>
-        <div class="empty-state-text">No hospitals found</div>
-      </div>`;
+    list.innerHTML = `<div class="empty-state"><div class="empty-state-icon">🏥</div><div class="empty-state-text">No hospitals found</div></div>`;
     return;
   }
-
   list.innerHTML = hospitals.map(h => {
     const covered = coveredIds.has(h._id);
-    const loc = [h.location?.address, h.location?.city, h.location?.state, h.location?.pincode]
-      .filter(Boolean).join(', ');
+    const loc = [h.location?.address, h.location?.city, h.location?.state].filter(Boolean).join(', ');
     return `
-      <div class="card card--hover" style="margin-bottom:12px;${!covered && !hospitalFilter ? 'opacity:0.6;' : ''}">
-        <div class="flex items-center justify-between" style="margin-bottom:10px;">
+      <div class="card card--hover" style="margin-bottom:12px;${!covered&&!hospitalFilter?'opacity:0.55;':''}">
+        <div class="flex items-center justify-between" style="margin-bottom:9px;">
           <h3 style="margin:0;">${h.name}</h3>
-          ${covered
-            ? '<span class="badge badge-approved">Covered</span>'
-            : '<span class="badge badge-rejected">Not Covered</span>'}
+          ${covered ? '<span class="badge badge-approved">Covered</span>' : '<span class="badge badge-rejected">Not Covered</span>'}
         </div>
-        <div style="font-size:0.875rem;color:var(--slate-500);">${loc}</div>
-        <div class="mono" style="font-size:0.72rem;color:var(--slate-600);margin-top:8px;">
-          Reg: ${h.registrationNumber}
-        </div>
-        ${!covered ? `<div style="margin-top:10px;font-size:0.8rem;color:var(--slate-600);">⚠ Not empanelled with your insurer</div>` : ''}
+        <div style="font-size:0.85rem;color:var(--text-muted);">${loc}</div>
+        <div class="mono" style="font-size:0.68rem;color:var(--text-faint);margin-top:7px;">Reg: ${h.registrationNumber}</div>
       </div>`;
   }).join('');
 }
 
-/* ══════════════════════════════════════════
+/* ────────────────────────────────────────────────────────────────
    SUBMIT CLAIM
-══════════════════════════════════════════ */
+   ──────────────────────────────────────────────────────────────── */
 function initSubmitClaim() {
   renderPage('page-submit-claim');
   renderNavbar();
-
-  document.getElementById('claim-submit-btn')
-    ?.addEventListener('click', handleSubmitClaim);
+  document.getElementById('claim-submit-btn')?.addEventListener('click', handleSubmitClaim);
 }
 
 async function handleSubmitClaim() {
   const btn = document.getElementById('claim-submit-btn');
-
   const hospitalId    = document.getElementById('claim-hospital-id')?.value?.trim();
   const ipfsCid       = document.getElementById('claim-ipfs-cid')?.value?.trim();
   const amount        = parseFloat(document.getElementById('claim-amount')?.value);
@@ -541,19 +650,10 @@ async function handleSubmitClaim() {
   const diagnosis     = document.getElementById('claim-diagnosis')?.value?.trim();
   const admissionDate = document.getElementById('claim-admission')?.value;
   const dischargeDate = document.getElementById('claim-discharge')?.value;
-
-  if (!hospitalId || !ipfsCid || !amount || !diagnosis) {
-    Toast.error('Please fill in all required fields.');
-    return;
-  }
-
+  if (!hospitalId || !ipfsCid || !amount || !diagnosis) { Toast.error('Please fill in all required fields.'); return; }
   setLoading(btn, true, 'Submitting…');
-
   try {
-    const data = await API.claims.submit({
-      hospitalId, ipfsCid, amount,
-      procedureCode, diagnosis, admissionDate, dischargeDate,
-    });
+    const data = await API.claims.submit({ hospitalId, ipfsCid, amount, procedureCode, diagnosis, admissionDate, dischargeDate });
     Toast.success('Claim submitted!');
     setTimeout(() => Router.navigate(`/claim/${data.claim._id}`), 800);
   } catch (err) {
@@ -562,18 +662,53 @@ async function handleSubmitClaim() {
   }
 }
 
-/* ══════════════════════════════════════════
-   ROUTER BOOT
-══════════════════════════════════════════ */
-Router.register('/',            initLanding);
-Router.register('/login',       initLanding);
-Router.register('/dashboard',   initDashboard);
-Router.register('/prescribe',   initPrescribe);
-Router.register('/hospitals',   initHospitals);
-Router.register('/submit-claim', initSubmitClaim);
+/* ────────────────────────────────────────────────────────────────
+   NAVBAR
+   ──────────────────────────────────────────────────────────────── */
+function renderNavbar() {
+  const user = Auth.user;
+  const nav  = document.getElementById('main-nav');
+  if (!nav) return;
+  if (!user) { nav.style.display = 'none'; return; }
 
-// Dynamic /claim/:id route
-const _base = Router._handle.bind(Router);
+  nav.style.display = 'flex';
+  nav.innerHTML = `
+    <a class="navbar-brand" href="#/dashboard">
+      <div class="navbar-logo">H</div>
+      <span class="navbar-name">HealthChain</span>
+    </a>
+    <div class="navbar-right">
+      <div class="hide-mobile" style="text-align:right;">
+        <div class="navbar-user-name">${user.name || 'User'}</div>
+        <div class="navbar-user-addr mono">${shortAddr(user.walletAddress)}</div>
+      </div>
+      ${roleBadge(user.role)}
+      <button class="theme-toggle" id="theme-btn-nav" aria-label="Toggle theme">
+        <div class="theme-thumb" id="thumb-nav">${Theme.current === 'dark' ? '☀️' : '🌙'}</div>
+      </button>
+      <button class="btn btn-ghost btn-sm" id="logout-btn">Disconnect</button>
+    </div>
+  `;
+
+  document.getElementById('theme-btn-nav')?.addEventListener('click', () => Theme.toggle());
+  document.getElementById('logout-btn')?.addEventListener('click', () => {
+    Auth.clear();
+    Router.navigate('/');
+  });
+}
+
+/* ────────────────────────────────────────────────────────────────
+   ROUTER
+   ──────────────────────────────────────────────────────────────── */
+Router.register('/',              initLanding);
+Router.register('/login',         initLanding);
+Router.register('/dashboard',     initDashboard);
+Router.register('/prescribe',     initPrescribe);
+Router.register('/hospitals',     initHospitals);
+Router.register('/submit-claim',  initSubmitClaim);
+
+/* Dynamic /claim/:id */
+const _baseHandle = Router._handle.bind(Router);
 Router._handle = function () {
   const hash  = window.location.hash.replace('#', '') || '/';
   const match = hash.match(/^\/claim\/(.+)$/);
@@ -582,7 +717,15 @@ Router._handle = function () {
     initClaimDetail(match[1]);
     return;
   }
-  _base();
+  _baseHandle();
 };
 
-document.addEventListener('DOMContentLoaded', () => Router.init());
+/* ────────────────────────────────────────────────────────────────
+   BOOT
+   ──────────────────────────────────────────────────────────────── */
+document.addEventListener('DOMContentLoaded', () => {
+  Theme.init();
+  Cursor.init();
+  ScrollReveal.init();
+  Router.init();
+});
