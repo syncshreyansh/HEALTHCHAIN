@@ -1,31 +1,23 @@
 const mongoose = require('mongoose');
 
-const claimSchema = new mongoose.Schema(
+const hospitalSchema = new mongoose.Schema(
   {
-    patientId:           { type: mongoose.Schema.Types.ObjectId, ref: 'User',     required: true },
-    hospitalId:          { type: mongoose.Schema.Types.ObjectId, ref: 'Hospital', required: true },
-    doctorId:            { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-    ipfsCid:             { type: String, required: true },
-    blockchainTxHash:    { type: String },
-    amount:              { type: Number, required: true },
-    currency:            { type: String, default: 'INR' },
-    status:              { type: String, enum: ['pending', 'approved', 'rejected', 'under_review'], default: 'pending' },
-    fraudScore:          { type: Number, min: 0, max: 100, default: null },
-    fraudConcerns:       [{ type: String }],
-    aiExplanation:       { type: String },
-    rejectionReason:     { type: String },
-    rejectionReasonHash: { type: String },
-    diagnosis:           { type: String },
-    procedureCode:       { type: String },
-    admissionDate:       { type: Date },
-    dischargeDate:       { type: Date },
-    resolvedAt:          { type: Date },
-    resolvedBy:          { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    name:               { type: String, required: true, trim: true },
+    address:            { type: String, trim: true },
+    city:               { type: String, trim: true },
+    state:              { type: String, trim: true },
+    country:            { type: String, trim: true, default: 'India' },
+    phone:              { type: String, trim: true },
+    email:              { type: String, trim: true, lowercase: true },
+    registrationNumber: { type: String, trim: true },
+    walletAddress:      { type: String, required: true, lowercase: true, trim: true },
+    supportedInsurers:  [{ type: String }],
+    isActive:           { type: Boolean, default: true },
   },
   { timestamps: true }
 );
 
-claimSchema.index({ patientId: 1,  status: 1 });
-claimSchema.index({ hospitalId: 1, status: 1 });
+hospitalSchema.index({ isActive: 1 });
+hospitalSchema.index({ supportedInsurers: 1 });
 
-module.exports = mongoose.model('Claim', claimSchema);
+module.exports = mongoose.model('Hospital', hospitalSchema);
