@@ -1,3 +1,8 @@
+Here's your README content — just copy and paste this directly into your `README.md` file on GitHub:
+
+---
+
+````markdown
 <div align="center">
 
 <img src="https://img.shields.io/badge/Ethereum-Sepolia-3B82F6?style=for-the-badge&logo=ethereum&logoColor=white"/>
@@ -25,8 +30,8 @@
 
 <br/>
 
-[![Live Demo](https://img.shields.io/badge/🔗%20Live%20Demo-Sepolia%20Testnet-3B82F6?style=for-the-badge)](https://github.com/simranjitkaur-2007/HEALTHCHAIN)
 [![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](LICENSE)
+[![Status](https://img.shields.io/badge/Status-Live%20on%20Sepolia-3B82F6?style=for-the-badge)](https://github.com/simranjitkaur-2007/HEALTHCHAIN)
 
 </div>
 
@@ -58,20 +63,20 @@ HealthChain was built to fix that.
 │                     Node.js Backend API                        │
 │              JWT Auth  ·  Role Middleware  ·  REST             │
 └───────────────┬───────────────────────────────────────────────┘
-        ┌───────┴────────────────────────────┐
-        ▼                                    ▼
-┌──────────────────┐               ┌──────────────────────────┐
-│   MongoDB Atlas   │               │   Ethereum (Sepolia)      │
-│   (Encrypted DB)  │               │   Smart Contracts         │
-│   Cloudflare R2   │               │   Immutable Audit Trail   │
-└──────────────────┘               └──────────────────────────┘
-        │                                    │
-        ▼                                    ▼
-┌──────────────────┐               ┌──────────────────────────┐
-│  Pinata IPFS      │               │   AI Fraud Engine         │
-│  AES-256-GCM      │               │   Self-Trained LLM        │
-│  Encrypted Files  │               │   0–100 Risk Scoring      │
-└──────────────────┘               └──────────────────────────┘
+        ┌───────┴──────────────────────────────┐
+        ▼                                      ▼
+┌──────────────────┐                 ┌──────────────────────────┐
+│   MongoDB Atlas   │                 │   Ethereum (Sepolia)      │
+│   Cloudflare R2   │                 │   Smart Contracts         │
+│   Pinata IPFS     │                 │   Immutable Audit Trail   │
+└──────────────────┘                 └──────────────────────────┘
+        │                                      │
+        ▼                                      ▼
+┌──────────────────┐                 ┌──────────────────────────┐
+│  AES-256-GCM      │                 │   AI Fraud Engine         │
+│  Encrypted Files  │                 │   Self-Trained LLM        │
+│  Before Upload    │                 │   0–100 Risk Scoring      │
+└──────────────────┘                 └──────────────────────────┘
 ```
 
 ---
@@ -91,95 +96,75 @@ HealthChain was built to fix that.
 
 ## 👥 Three Portals, One Truth
 
-<br/>
-
 ### 🧑 Patient Portal — `PAT-XXXXXX`
-
-> *Your health history belongs to you.*
-
-- Access your complete medical records, diagnoses, and prescriptions — anytime, anywhere
-- Submit insurance claims directly from your treatment history
-- Verify your identity instantly via **DigiLocker** — no physical documents needed
-- Receive AI-generated, plain-English explanations when a claim is approved or rejected
+- Complete medical history accessible anytime — no hospital dependency
+- Submit insurance claims directly from treatment records
+- Identity verified instantly via **DigiLocker OAuth 2.0** — no physical documents
+- Plain-English AI explanation on every claim decision
 - Every record linked to an immutable blockchain transaction
 
-<br/>
-
 ### 🏥 Hospital Portal — `HSP-XXXXXX`
-
-> *What you record today, you can't change tomorrow.*
-
-- Register patients and upload treatment records directly to the blockchain
-- Records become **permanently immutable** the moment they're submitted
-- **Ayushman Bharat (NHA) API** integration for real-time scheme eligibility verification
-- Upload prescriptions, invoices, lab reports, and medical photos — all encrypted to IPFS
-- View and manage all registered patients from a single dashboard
-
-<br/>
+- Upload treatment records directly to the blockchain — permanently immutable
+- **Ayushman Bharat (NHA) API** for real-time PM-JAY scheme eligibility verification
+- Upload prescriptions, invoices, lab reports, and photos — all AES-256 encrypted to IPFS
+- Register and manage patients from a single dashboard
 
 ### 🛡️ Insurance Portal — `INS-XXXXXX`
-
-> *Stop reviewing documents. Start reviewing truth.*
-
-- Every incoming claim arrives pre-scored with a **0–100 AI fraud risk rating**
-- The treatment record behind each claim is on-chain — unchanged since the day it was created
-- Approve or reject claims with one click — AI generates the patient notification automatically
-- Full claim history with blockchain verification links
+- Every claim arrives pre-scored with a **0–100 AI fraud risk rating**
+- Treatment records are on-chain — unchanged since the moment of upload
+- One-click approve/reject — AI auto-generates the patient notification
+- Full claim history with live blockchain verification links
 
 ---
 
 ## 🔐 Security Stack
 
 ```
-File Upload Flow:
-─────────────────────────────────────────────────────────
+File Upload Flow
+────────────────────────────────────────────────────
 Hospital uploads file
         │
         ▼
-AES-256-GCM Encryption (key stored server-side only)
+AES-256-GCM Encryption  (key stored server-side only)
         │
         ▼
 Encrypted blob → Pinata IPFS → CID stored in MongoDB
         │
         ▼
 Transaction hash → Ethereum Sepolia → Permanent record
-─────────────────────────────────────────────────────────
-Even Pinata cannot read your files. Even if the DB is
-compromised, files are unreadable without the key.
+────────────────────────────────────────────────────
+Even Pinata cannot read your files.
+Even if the DB is breached, files are unreadable.
 ```
 
-- 🔑 **JWT Authentication** with role-based access control
-- 🚫 **Zero-trust middleware** — a patient token cannot hit a hospital route, ever
-- 🔒 **AES-256-GCM** encryption on all files before leaving the server
-- ⛓️ **Immutable on-chain records** — no retroactive edits possible
-- 🪪 **DigiLocker OAuth 2.0** for government-verified patient identity
+- 🔑 JWT Authentication with role-based access control
+- 🚫 Zero-trust middleware — a patient token cannot hit a hospital route, ever
+- 🔒 AES-256-GCM encryption on all files before leaving the server
+- ⛓️ Immutable on-chain records — no retroactive edits possible
+- 🪪 DigiLocker OAuth 2.0 for government-verified patient identity
 
 ---
 
 ## 🤖 AI Fraud Detection
 
-Every insurance claim is automatically analyzed the moment it is submitted:
-
 ```
 Claim Submitted
       │
       ▼
-AI Model pulls: diagnosis · treatment cost · ICD codes
-                patient history · insurer patterns
+Model analyzes: diagnosis · cost · ICD codes · patient history
       │
       ▼
-Fraud Risk Score: 0 ──────────────────── 100
-                  ✅ Low Risk        🚨 High Risk
+Risk Score:  0 ──────────────────── 100
+             ✅ Low Risk        🚨 High Risk
       │
       ▼
-Insurer sees score + explanation
-Insurer approves / rejects
+Insurer sees score + reasoning
       │
       ▼
 AI generates plain-English notification for patient
 ```
 
-Built on a **self-trained fraud detection model** — the scoring logic, training data pipeline, and model weights are fully owned by the project.
+Built on a **self-trained fraud detection model** — the scoring logic, training pipeline, and model weights are fully owned by the project. No third-party API dependency.
 
 ---
 
@@ -187,25 +172,22 @@ Built on a **self-trained fraud detection model** — the scoring logic, trainin
 
 | Integration | Portal | Purpose |
 |---|---|---|
-| **DigiLocker OAuth 2.0** | Patient | Government-verified identity — no fake documents |
+| **DigiLocker OAuth 2.0** | Patient | Government-verified identity — eliminates document fraud at source |
 | **Ayushman Bharat (NHA) API** | Hospital | Real-time PM-JAY scheme eligibility verification |
 
-> *Integration designed and sandbox-ready — pending NHA developer portal approval.*
-> This is intentional. Knowing the compliance process matters more than faking the integration.
+> Integration designed and sandbox-ready — pending NHA developer portal approval.
 
 ---
 
 ## ⛓️ Smart Contracts
 
-```solidity
+```
 contracts/
-├── MedicalRecord.sol      // Stores treatment record hashes on-chain
-└── InsuranceClaim.sol     // Records claim submissions and resolutions
+├── MedicalRecord.sol       // Stores treatment record hashes on-chain
+└── InsuranceClaim.sol      // Records claim submissions and resolutions
 ```
 
-- Deployed on **Ethereum Sepolia testnet**
-- Every upload emits an on-chain event with a verifiable transaction hash
-- View any record live on **Etherscan** — no trust required
+Deployed on **Ethereum Sepolia testnet** — every upload emits a verifiable on-chain transaction. View any record live on Etherscan.
 
 ---
 
@@ -222,36 +204,24 @@ HEALTHCHAIN/
 │   ├── patientController.js
 │   └── insurerController.js
 ├── 📁 middlewares/
-│   ├── auth.js              # JWT verification
-│   └── role.js              # Role-based access enforcement
+│   ├── auth.js               # JWT verification
+│   └── role.js               # Role-based access enforcement
 ├── 📁 services/
-│   ├── aiService.js         # Fraud scoring + claim explanation
-│   ├── blockchainService.js # Ethereum interaction + mock fallback
-│   └── encryptionService.js # AES-256-GCM file encryption
+│   ├── aiService.js          # Fraud scoring + explanation generation
+│   ├── blockchainService.js  # Ethereum interaction + mock fallback
+│   └── encryptionService.js  # AES-256-GCM file encryption
 ├── 📁 frontend/
 │   ├── index.html
 │   ├── styles.css
 │   └── app.js
-├── supabase-setup.sql       # Database schema
-├── deploy.js                # Smart contract deployment
+├── supabase-setup.sql        # Database schema
+├── deploy.js                 # Smart contract deployment
 └── server.js
 ```
 
 ---
 
 ## 🚀 Getting Started
-
-### Prerequisites
-
-```bash
-Node.js >= 18
-MongoDB Atlas account
-Cloudflare Workers account
-Pinata IPFS account
-MetaMask wallet (for Sepolia testnet)
-```
-
-### Installation
 
 ```bash
 # Clone the repository
@@ -261,10 +231,8 @@ cd HEALTHCHAIN
 # Install dependencies
 npm install
 
-# Set up environment variables
+# Configure environment
 cp .env.example .env
-# Fill in your MongoDB URI, Cloudflare keys, Pinata API key,
-# Ethereum RPC URL, and contract addresses
 
 # Deploy smart contracts to Sepolia
 node deploy.js
@@ -295,20 +263,20 @@ CLOUDFLARE_ACCOUNT_ID=your_cf_account_id
 | Stage | Monthly Cost | Stack |
 |---|---|---|
 | **Dev / Demo** | ~$0 | MongoDB Free · Cloudflare Free · Pinata Free |
-| **MVP Production** | ~$80–120 | MongoDB M10 · Cloudflare Workers · Own LLM |
-| **At Scale (50 hospitals)** | ~$1,500–1,800 | MongoDB M30+ · Cloudflare Enterprise · GPU Inference |
+| **MVP Production** | ~$80–120 | MongoDB M10 · Cloudflare Workers · Self-hosted LLM |
+| **At Scale · 50 hospitals** | ~$1,500–1,800 | MongoDB M30+ · Cloudflare Enterprise · GPU Inference |
 
 ---
 
-## 🗓️ Built In
+## 🗓️ Built In 5 Weeks
 
-```
-Phase 01 — Days 01–07   Smart Contracts & Auth
-Phase 02 — Days 08–14   IPFS + Encryption Layer
-Phase 03 — Days 15–21   AI Fraud Scoring Engine
-Phase 04 — Days 22–24   DigiLocker + Ayushman Bharat Integration
-Phase 05 — Days 25–28   Frontend & End-to-End QA
-```
+| Phase | Days | Focus |
+|---|---|---|
+| 01 | 1–7 | Smart Contracts & Auth |
+| 02 | 8–14 | IPFS + Encryption Layer |
+| 03 | 15–21 | AI Fraud Scoring Engine |
+| 04 | 22–24 | DigiLocker + Ayushman Bharat Integration |
+| 05 | 25–28 | Frontend & End-to-End QA |
 
 ---
 
@@ -325,6 +293,7 @@ Phase 05 — Days 25–28   Frontend & End-to-End QA
 
 <br/>
 
-⭐ Star this repo if you believe healthcare data should be owned by patients, not hospitals.
+⭐ Star this repo if you believe health data should belong to patients — not hospitals.
 
 </div>
+````
