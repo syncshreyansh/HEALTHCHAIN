@@ -1,10 +1,3 @@
-// controllers/hospitalController.js
-// ==========================================
-// WHY: Hospitals can register patients and upload treatment records.
-// The upload flow: encrypt → IPFS → blockchain hash → Supabase.
-// This is the entry point for ALL medical data in the system.
-// ==========================================
-
 const bcrypt = require('bcryptjs');
 const supabase = require('../config/supabase');
 const { generateUniqueId } = require('./authController');
@@ -123,7 +116,7 @@ async function uploadTreatment(req, res) {
     });
     const fileHash = crypto.createHash('sha256').update(dataToHash).digest('hex');
 
-    // Write to blockchain (or mock if blockchain not configured)
+    // Write to blockchain
     let txHash = 'BLOCKCHAIN_NOT_CONFIGURED';
     try {
       const tx = await blockchainService.addRecord(

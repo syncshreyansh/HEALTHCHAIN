@@ -1,10 +1,3 @@
-// scripts/deploy.js
-// ==========================================
-// WHY: This script deploys both smart contracts to Ethereum Sepolia testnet.
-// Run with: npx hardhat run scripts/deploy.js --network sepolia
-// After running, copy the printed addresses to your backend .env file!
-// ==========================================
-
 const hre = require('hardhat');
 
 async function main() {
@@ -21,7 +14,7 @@ async function main() {
     process.exit(1);
   }
 
-  // Deploy MedicalRecord
+  // MedicalRecord
   console.log('1️⃣  Deploying MedicalRecord.sol...');
   const MedicalRecord = await hre.ethers.getContractFactory('MedicalRecord');
   const medicalRecord = await MedicalRecord.deploy();
@@ -29,7 +22,7 @@ async function main() {
   const medicalAddress = await medicalRecord.getAddress();
   console.log(`✅ MedicalRecord deployed to: ${medicalAddress}`);
 
-  // Deploy InsuranceClaim
+  // InsuranceClaim
   console.log('\n2️⃣  Deploying InsuranceClaim.sol...');
   const InsuranceClaim = await hre.ethers.getContractFactory('InsuranceClaim');
   const insuranceClaim = await InsuranceClaim.deploy();

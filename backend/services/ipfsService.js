@@ -1,10 +1,3 @@
-// services/ipfsService.js
-// ==========================================
-// WHY: IPFS stores medical files permanently and gives a content hash (CID).
-// Pinata "pins" our files so they never disappear from the IPFS network.
-// Files are encrypted BEFORE upload — Pinata never sees the actual content.
-// ==========================================
-
 const axios = require('axios');
 const FormData = require('form-data');
 
@@ -31,7 +24,7 @@ async function uploadToIPFS(encryptedBuffer, filename) {
       }
     );
 
-    return res.data.IpfsHash; // the CID
+    return res.data.IpfsHash;
   } catch (err) {
     console.error('IPFS upload error:', err.response?.data || err.message);
     throw new Error('Failed to upload file to IPFS: ' + err.message);

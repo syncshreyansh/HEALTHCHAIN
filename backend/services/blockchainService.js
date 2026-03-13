@@ -1,10 +1,3 @@
-// services/blockchainService.js
-// ==========================================
-// WHY: This service connects Node.js to Ethereum using ethers.js.
-// It writes record hashes and claim events to the smart contracts.
-// If blockchain is not configured, it gracefully falls back to mock mode.
-// ==========================================
-
 const { ethers } = require('ethers');
 
 // ABI — minimal interface to call only the functions we need
@@ -66,7 +59,7 @@ function init() {
 
 async function addRecord(patientId, cid, fileHashHex, hospitalId) {
   if (!medicalContract) {
-    return { hash: 'MOCK_TX_' + Date.now(), wait: async () => {} };
+    return { hash: 'MOCK_TX_' + Date.now(), wait: async () => { } };
   }
   const bytes32Hash = ethers.zeroPadValue(
     ethers.hexlify(Buffer.from(fileHashHex.replace('0x', '').padEnd(64, '0').slice(0, 64), 'hex')),
@@ -79,7 +72,7 @@ async function addRecord(patientId, cid, fileHashHex, hospitalId) {
 
 async function submitClaim(patientId, treatmentId, amount) {
   if (!claimContract) {
-    return { hash: 'MOCK_CLAIM_TX_' + Date.now(), wait: async () => {} };
+    return { hash: 'MOCK_CLAIM_TX_' + Date.now(), wait: async () => { } };
   }
   const amountWei = ethers.parseUnits(amount.toString(), 2); // 2 decimal places for INR paise
   const tx = await claimContract.submitClaim(patientId, treatmentId, amountWei);
@@ -89,14 +82,13 @@ async function submitClaim(patientId, treatmentId, amount) {
 
 async function resolveClaim(claimId, approved) {
   if (!claimContract) {
-    return { hash: 'MOCK_RESOLVE_TX_' + Date.now(), wait: async () => {} };
+    return { hash: 'MOCK_RESOLVE_TX_' + Date.now(), wait: async () => { } };
   }
   const tx = await claimContract.resolveClaim(claimId, approved);
   await tx.wait();
   return tx;
 }
 
-// Initialize on module load
 init();
 
 module.exports = { addRecord, submitClaim, resolveClaim };

@@ -1,10 +1,3 @@
-// middlewares/auth.js
-// ==========================================
-// WHY: Every protected API route needs to verify the user is logged in.
-// This middleware runs BEFORE the route handler and checks the JWT token.
-// If the token is missing or invalid, it rejects the request with 401.
-// ==========================================
-
 const jwt = require('jsonwebtoken');
 
 function authMiddleware(req, res, next) {
@@ -18,7 +11,7 @@ function authMiddleware(req, res, next) {
   const token = authHeader.split(' ')[1];
 
   try {
-    // jwt.verify checks: (1) signature is valid, (2) token hasn't expired
+    // Verify token signature and expiration
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     req.user = decoded; // attach user info to the request object
     next(); // proceed to the actual route handler

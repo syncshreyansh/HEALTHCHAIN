@@ -1,10 +1,3 @@
-// controllers/insurerController.js
-// ==========================================
-// WHY: Insurers review claims routed to them by INS-XXXXXX ID.
-// They see AI fraud scores, can approve/reject, and every decision
-// is recorded permanently on the blockchain as an audit trail.
-// ==========================================
-
 const supabase = require('../config/supabase');
 const aiService = require('../services/aiService');
 const blockchainService = require('../services/blockchainService');
@@ -72,8 +65,7 @@ async function getClaimDetail(req, res) {
 }
 
 // GET /api/insurer/treatments/:id/download/:type
-// WHY: Insurers need to verify treatment documents (prescription/invoice) stored on IPFS
-// to make informed approve/reject decisions. They access via claim ownership check.
+// Download treatment documents
 async function downloadTreatmentFile(req, res) {
   try {
     const { id: treatmentId, type } = req.params;

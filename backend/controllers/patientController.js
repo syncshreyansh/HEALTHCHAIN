@@ -1,10 +1,3 @@
-// controllers/patientController.js
-// ==========================================
-// WHY: Patients can view their treatment records and submit insurance claims.
-// When a claim is submitted, AI fraud scoring runs automatically.
-// No document upload needed — it all comes from hospital records.
-// ==========================================
-
 const supabase = require('../config/supabase');
 const aiService = require('../services/aiService');
 const blockchainService = require('../services/blockchainService');

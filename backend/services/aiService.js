@@ -1,14 +1,6 @@
-// services/aiService.js
-// ==========================================
-// WHY: The Claude AI API does two jobs:
-// 1. analyzeClaim() — gives every claim a fraud score 0-100
-// 2. generateExplanation() — converts rejection codes into human language
-// Using claude-sonnet-4-20250514 for cost efficiency vs Opus
-// ==========================================
-
 const Anthropic = require('@anthropic-ai/sdk');
 
-// Lazy-init the client (only if ANTHROPIC_API_KEY is set)
+// Anthropic client
 let client = null;
 function getClient() {
   if (!client) {

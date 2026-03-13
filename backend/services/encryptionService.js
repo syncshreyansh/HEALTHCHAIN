@@ -1,11 +1,3 @@
-// services/encryptionService.js
-// ==========================================
-// WHY: Medical records are private. We encrypt files with AES-256-GCM
-// BEFORE uploading to IPFS. Even if someone gets the IPFS file, they
-// cannot read it without the encryption key.
-// AES-256-GCM also includes an authentication tag to detect tampering.
-// ==========================================
-
 const crypto = require('crypto');
 
 const ALGORITHM = 'aes-256-gcm';
@@ -13,7 +5,7 @@ const IV_LENGTH = 16; // 16 bytes for AES
 const TAG_LENGTH = 16;
 
 function encrypt(buffer, keyHex) {
-  // Convert hex key string to bytes (must be 32 bytes / 64 hex chars)
+  // Buffer from hex key string
   const key = keyHex
     ? Buffer.from(keyHex.padEnd(64, '0').slice(0, 64), 'hex')
     : crypto.randomBytes(32);
@@ -24,7 +16,7 @@ function encrypt(buffer, keyHex) {
   const encrypted = Buffer.concat([cipher.update(buffer), cipher.final()]);
   const tag = cipher.getAuthTag();
 
-  // Format: iv (16 bytes) + tag (16 bytes) + encrypted data
+  // iv + tag + data
   return Buffer.concat([iv, tag, encrypted]);
 }
 

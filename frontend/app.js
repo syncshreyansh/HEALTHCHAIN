@@ -1,14 +1,14 @@
-// ─── CONFIG ───────────────────────────────────────────────────────────────────
+// CONFIG
 const API_BASE = `${window.location.protocol}//${window.location.hostname}:5000/api`;
 
-// ─── STATE ────────────────────────────────────────────────────────────────────
+// STATE
 let currentRole = null;
-let authToken   = null;
+let authToken = null;
 let currentUser = null;
-let currentTab  = 'overview';
+let currentTab = 'overview';
 let cachedTreatments = [];
 
-// ─── API HELPER ───────────────────────────────────────────────────────────────
+// API HELPER
 async function apiCall(method, path, body = null) {
   const opts = {
     method,
@@ -24,7 +24,7 @@ async function apiCall(method, path, body = null) {
   return data;
 }
 
-// ─── TOAST ────────────────────────────────────────────────────────────────────
+// TOAST
 function showToast(msg, type = 'info') {
   const icons = { success: '✓', error: '✕', info: 'ℹ' };
   const el = document.createElement('div');
@@ -34,8 +34,8 @@ function showToast(msg, type = 'info') {
   setTimeout(() => el.remove(), 4500);
 }
 
-// ─── DOTS CANVAS ──────────────────────────────────────────────────────────────
-(function() {
+// DOTS CANVAS
+(function () {
   const canvas = document.getElementById('dots-canvas');
   const ctx = canvas.getContext('2d');
   let dots = [];
@@ -43,21 +43,21 @@ function showToast(msg, type = 'info') {
   function initDots() {
     dots = [];
     for (let i = 0; i < 90; i++) {
-      dots.push({ x: Math.random()*canvas.width, y: Math.random()*canvas.height, r: Math.random()*1.8+0.4, vx: (Math.random()-.5)*.35, vy: (Math.random()-.5)*.35, opacity: Math.random()*.4+.08 });
+      dots.push({ x: Math.random() * canvas.width, y: Math.random() * canvas.height, r: Math.random() * 1.8 + 0.4, vx: (Math.random() - .5) * .35, vy: (Math.random() - .5) * .35, opacity: Math.random() * .4 + .08 });
     }
   }
   function draw() {
-    ctx.clearRect(0,0,canvas.width,canvas.height);
-    for (let i=0;i<dots.length;i++) for (let j=i+1;j<dots.length;j++) {
-      const dx=dots[i].x-dots[j].x, dy=dots[i].y-dots[j].y, dist=Math.sqrt(dx*dx+dy*dy);
-      if (dist<120) { ctx.beginPath(); ctx.strokeStyle=`rgba(59,130,246,${.04*(1-dist/120)})`; ctx.lineWidth=.5; ctx.moveTo(dots[i].x,dots[i].y); ctx.lineTo(dots[j].x,dots[j].y); ctx.stroke(); }
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    for (let i = 0; i < dots.length; i++) for (let j = i + 1; j < dots.length; j++) {
+      const dx = dots[i].x - dots[j].x, dy = dots[i].y - dots[j].y, dist = Math.sqrt(dx * dx + dy * dy);
+      if (dist < 120) { ctx.beginPath(); ctx.strokeStyle = `rgba(59,130,246,${.04 * (1 - dist / 120)})`; ctx.lineWidth = .5; ctx.moveTo(dots[i].x, dots[i].y); ctx.lineTo(dots[j].x, dots[j].y); ctx.stroke(); }
     }
     dots.forEach(d => {
-      ctx.beginPath(); ctx.arc(d.x,d.y,d.r,0,Math.PI*2);
-      ctx.fillStyle=`rgba(255,255,255,${d.opacity})`; ctx.fill();
-      d.x+=d.vx; d.y+=d.vy;
-      if (d.x<0||d.x>canvas.width) d.vx*=-1;
-      if (d.y<0||d.y>canvas.height) d.vy*=-1;
+      ctx.beginPath(); ctx.arc(d.x, d.y, d.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(255,255,255,${d.opacity})`; ctx.fill();
+      d.x += d.vx; d.y += d.vy;
+      if (d.x < 0 || d.x > canvas.width) d.vx *= -1;
+      if (d.y < 0 || d.y > canvas.height) d.vy *= -1;
     });
     requestAnimationFrame(draw);
   }
@@ -65,7 +65,7 @@ function showToast(msg, type = 'info') {
   window.addEventListener('resize', () => { resize(); initDots(); });
 })();
 
-// ─── PAGE NAVIGATION ──────────────────────────────────────────────────────────
+// PAGE NAVIGATION
 function showPage(id) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.getElementById(id).classList.add('active');
@@ -83,13 +83,13 @@ function showAuth(role) {
   document.getElementById('auth-error-text').textContent = '';
 
   const configs = {
-    patient:   { iconClass: 'blue',   name: 'Patient Login',   title: 'Patient Access',         sub: 'Sign in with your Patient ID (PAT-XXXXXX) and password.',   placeholder: 'PAT-XXXXXX', label: 'Patient ID',   btnClass: 'blue' },
-    hospital:  { iconClass: 'green',  name: 'Hospital Login',  title: 'Staff Authentication',   sub: 'Sign in with your Hospital ID (HSP-XXXXXX) and password.',  placeholder: 'HSP-XXXXXX', label: 'Hospital ID',  btnClass: 'green' },
-    insurance: { iconClass: 'purple', name: 'Insurance Login', title: 'Company Authentication', sub: 'Sign in with your Insurer ID (INS-XXXXXX) and password.',   placeholder: 'INS-XXXXXX', label: 'Insurer ID',   btnClass: 'purple' },
+    patient: { iconClass: 'blue', name: 'Patient Login', title: 'Patient Access', sub: 'Sign in with your Patient ID (PAT-XXXXXX) and password.', placeholder: 'PAT-XXXXXX', label: 'Patient ID', btnClass: 'blue' },
+    hospital: { iconClass: 'green', name: 'Hospital Login', title: 'Staff Authentication', sub: 'Sign in with your Hospital ID (HSP-XXXXXX) and password.', placeholder: 'HSP-XXXXXX', label: 'Hospital ID', btnClass: 'green' },
+    insurance: { iconClass: 'purple', name: 'Insurance Login', title: 'Company Authentication', sub: 'Sign in with your Insurer ID (INS-XXXXXX) and password.', placeholder: 'INS-XXXXXX', label: 'Insurer ID', btnClass: 'purple' },
   };
   const svgIcons = {
-    patient:   `<svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" fill="none" style="width:18px;height:18px;"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>`,
-    hospital:  `<svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" fill="none" style="width:18px;height:18px;"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M12 8v8M8 12h8"/></svg>`,
+    patient: `<svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" fill="none" style="width:18px;height:18px;"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>`,
+    hospital: `<svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" fill="none" style="width:18px;height:18px;"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M12 8v8M8 12h8"/></svg>`,
     insurance: `<svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" fill="none" style="width:18px;height:18px;"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>`,
   };
 
@@ -115,7 +115,7 @@ function showAuth(role) {
   setTimeout(() => document.getElementById('input-uniqueid').focus(), 100);
 }
 
-// ─── ENTER KEY SUPPORT ────────────────────────────────────────────────────────
+// ENTER KEY SUPPORT
 document.addEventListener('DOMContentLoaded', () => {
   ['input-uniqueid', 'input-password'].forEach(id => {
     document.getElementById(id).addEventListener('keydown', (e) => {
@@ -124,7 +124,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
 
-// ─── LOGIN ────────────────────────────────────────────────────────────────────
+// LOGIN
 async function doLogin() {
   const uniqueId = document.getElementById('input-uniqueid').value.trim();
   const password = document.getElementById('input-password').value;
@@ -167,7 +167,7 @@ function showAuthError(msg) {
   banner.style.display = 'flex';
 }
 
-// ─── LOGOUT ───────────────────────────────────────────────────────────────────
+// LOGOUT
 function doLogout() {
   authToken = null;
   currentUser = null;
@@ -176,7 +176,7 @@ function doLogout() {
   showLanding();
 }
 
-// ─── DASHBOARD ────────────────────────────────────────────────────────────────
+// DASHBOARD
 function showDashboard() {
   showPage('page-dashboard');
   const roleLabel = { patient: 'Patient', hospital: 'Hospital', insurance: 'Insurer' };
@@ -186,14 +186,14 @@ function showDashboard() {
   document.getElementById('dash-header-sub').textContent = 'Welcome back, ' + currentUser.name;
 
   const navItems = {
-    patient:   [['Overview','overview'],['Treatments','treatments'],['Claims','claims'],['Profile','profile']],
-    hospital:  [['Overview','overview'],['Patients','patients'],['Upload Record','upload'],['Register Patient','register']],
-    insurance: [['Overview','overview'],['All Claims','claims'],['Reports','reports']],
+    patient: [['Overview', 'overview'], ['Treatments', 'treatments'], ['Claims', 'claims'], ['Profile', 'profile']],
+    hospital: [['Overview', 'overview'], ['Patients', 'patients'], ['Upload Record', 'upload'], ['Register Patient', 'register']],
+    insurance: [['Overview', 'overview'], ['All Claims', 'claims'], ['Reports', 'reports']],
   };
 
   const nav = document.getElementById('sidebar-nav');
   nav.innerHTML = (navItems[currentRole] || []).map(([label, tab]) =>
-    `<div class="sidebar-item ${tab==='overview'?'active':''}" onclick="switchTab('${tab}',this)">${label}</div>`
+    `<div class="sidebar-item ${tab === 'overview' ? 'active' : ''}" onclick="switchTab('${tab}',this)">${label}</div>`
   ).join('');
 
   switchTab('overview', nav.querySelector('.sidebar-item.active'));
@@ -203,12 +203,12 @@ function switchTab(tab, el) {
   document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
   if (el) el.classList.add('active');
   currentTab = tab;
-  const titles = { overview:'Overview', treatments:'Treatment Records', claims:'Insurance Claims', profile:'My Profile', patients:'Patients', upload:'Upload Treatment', register:'Register Patient', reports:'Reports' };
+  const titles = { overview: 'Overview', treatments: 'Treatment Records', claims: 'Insurance Claims', profile: 'My Profile', patients: 'Patients', upload: 'Upload Treatment', register: 'Register Patient', reports: 'Reports' };
   document.getElementById('dash-header-title').textContent = titles[tab] || tab;
   renderTab(tab);
 }
 
-// ─── RENDER TAB ───────────────────────────────────────────────────────────────
+// RENDER TAB
 async function renderTab(tab) {
   const body = document.getElementById('dash-body');
   body.innerHTML = '<div class="loading-state"><span class="spinner"></span> Loading...</div>';
@@ -226,22 +226,22 @@ async function renderTab(tab) {
   }
 }
 
-// ─── PATIENT TABS ─────────────────────────────────────────────────────────────
+// PATIENT TABS
 async function renderPatientTab(tab, body) {
   if (tab === 'overview' || tab === 'treatments') {
     const treatments = await apiCall('GET', '/patient/treatments');
     cachedTreatments = treatments;
     // Fetch claims to know which treatments already have an approved/pending claim
     const claims = await apiCall('GET', '/patient/claims');
-    const totalSpent = treatments.reduce((s,t) => s+(t.amount_spent||0), 0);
-    const approvedCount = claims.filter(c=>c.status==='approved').length;
+    const totalSpent = treatments.reduce((s, t) => s + (t.amount_spent || 0), 0);
+    const approvedCount = claims.filter(c => c.status === 'approved').length;
 
     body.innerHTML = `
     <div class="stats-grid">
       ${statCard('Total Treatments', treatments.length, 'All time records')}
-      ${statCard('Total Spent', '₹'+totalSpent.toLocaleString(), 'Medical expenses')}
-      ${statCard('Insurance Claims', claims.length, approvedCount+' approved', 'green')}
-      ${statCard('Records On-Chain', treatments.filter(t=>t.blockchain_tx_hash&&!t.blockchain_tx_hash.startsWith('MOCK')).length, 'Verified', 'green')}
+      ${statCard('Total Spent', '₹' + totalSpent.toLocaleString(), 'Medical expenses')}
+      ${statCard('Insurance Claims', claims.length, approvedCount + ' approved', 'green')}
+      ${statCard('Records On-Chain', treatments.filter(t => t.blockchain_tx_hash && !t.blockchain_tx_hash.startsWith('MOCK')).length, 'Verified', 'green')}
     </div>
     <div class="section-card">
       <div class="section-header">
@@ -278,10 +278,10 @@ async function renderPatientTab(tab, body) {
       <div class="section-header"><div class="section-title">Profile</div></div>
       <div class="section-body">
         <div style="display:flex;align-items:center;gap:18px;margin-bottom:20px;">
-          <div class="profile-avatar">${(profile.name||'?')[0].toUpperCase()}</div>
+          <div class="profile-avatar">${(profile.name || '?')[0].toUpperCase()}</div>
           <div>
-            <div class="profile-name">${profile.name||'—'}</div>
-            <div class="profile-meta"><span>Age ${profile.age||'—'}</span></div>
+            <div class="profile-name">${profile.name || '—'}</div>
+            <div class="profile-meta"><span>Age ${profile.age || '—'}</span></div>
             <div class="profile-tags">
               <span class="profile-tag blue">${profile.unique_id}</span>
               <span class="profile-tag green">Verified Patient</span>
@@ -289,18 +289,18 @@ async function renderPatientTab(tab, body) {
           </div>
         </div>
         <hr style="border-color:var(--border);margin-bottom:4px;">
-        ${infoRow('Patient ID', profile.unique_id||'—')}
-        ${infoRow('Email', profile.email||'—')}
-        ${infoRow('Phone', profile.phone||'—')}
-        ${infoRow('Policy Number', profile.insurance_policy_id||'—')}
-        ${infoRow('Insurer ID', profile.insurer_unique_id||'—')}
+        ${infoRow('Patient ID', profile.unique_id || '—')}
+        ${infoRow('Email', profile.email || '—')}
+        ${infoRow('Phone', profile.phone || '—')}
+        ${infoRow('Policy Number', profile.insurance_policy_id || '—')}
+        ${infoRow('Insurer ID', profile.insurer_unique_id || '—')}
         ${infoRow('Member Since', fmtDate(profile.created_at))}
       </div>
     </div>`;
   }
 }
 
-// ─── HOSPITAL TABS ─────────────────────────────────────────────────────────────
+// HOSPITAL TABS
 async function renderHospitalTab(tab, body) {
   if (tab === 'overview') {
     const patients = await apiCall('GET', '/hospital/patients');
@@ -382,17 +382,17 @@ async function renderHospitalTab(tab, body) {
   }
 }
 
-// ─── RENDER PATIENTS LIST ─────────────────────────────────────────────────────
+// RENDER PATIENTS LIST
 function renderPatientsList(patients) {
   if (!patients.length) return emptyState('No patients registered yet');
-  const clrs = ['blue','green','purple'];
+  const clrs = ['blue', 'green', 'purple'];
   return patients.map((p, i) => {
     const clr = clrs[i % 3];
-    const rgb = clr==='blue'?'59,130,246':clr==='green'?'16,185,129':'139,92,246';
+    const rgb = clr === 'blue' ? '59,130,246' : clr === 'green' ? '16,185,129' : '139,92,246';
     return `<div class="patient-item">
-      <div class="patient-avatar" style="background:rgba(${rgb},.15);color:var(--${clr}2);">${(p.name||'?')[0].toUpperCase()}</div>
-      <div><div class="patient-name">${p.name}</div><div class="patient-meta">Age ${p.age||'—'} · ${p.unique_id}</div></div>
-      <div class="patient-right"><div style="font-weight:600;">${p.insurance_policy_id||'No Policy'}</div><div style="font-size:11px;">${p.email||p.phone||'—'}</div></div>
+      <div class="patient-avatar" style="background:rgba(${rgb},.15);color:var(--${clr}2);">${(p.name || '?')[0].toUpperCase()}</div>
+      <div><div class="patient-name">${p.name}</div><div class="patient-meta">Age ${p.age || '—'} · ${p.unique_id}</div></div>
+      <div class="patient-right"><div style="font-weight:600;">${p.insurance_policy_id || 'No Policy'}</div><div style="font-size:11px;">${p.email || p.phone || '—'}</div></div>
     </div>`;
   }).join('');
 }
@@ -402,14 +402,14 @@ function renderPatientsTableRows(patients) {
   return patients.map(p => `<tr>
     <td style="font-weight:600;">${p.name}</td>
     <td style="font-family:'DM Mono',monospace;font-size:12px;">${p.unique_id}</td>
-    <td>${p.age||'—'}</td>
-    <td>${p.insurance_policy_id||'—'}</td>
-    <td>${p.insurer_unique_id||'—'}</td>
-    <td style="color:var(--text2);">${p.email||p.phone||'—'}</td>
+    <td>${p.age || '—'}</td>
+    <td>${p.insurance_policy_id || '—'}</td>
+    <td>${p.insurer_unique_id || '—'}</td>
+    <td style="color:var(--text2);">${p.email || p.phone || '—'}</td>
   </tr>`).join('');
 }
 
-// ─── INSURER TABS ─────────────────────────────────────────────────────────────
+// INSURER TABS
 async function renderInsurerTab(tab, body) {
   if (tab === 'overview') {
     const [stats, claims] = await Promise.all([
@@ -419,9 +419,9 @@ async function renderInsurerTab(tab, body) {
     body.innerHTML = `
     <div class="stats-grid">
       ${statCard('Total Claims', stats.total, 'All time')}
-      ${statCard('Pending Review', stats.pending, 'Needs attention', stats.pending>0?'amber':'')}
+      ${statCard('Pending Review', stats.pending, 'Needs attention', stats.pending > 0 ? 'amber' : '')}
       ${statCard('Approved', stats.approved, 'Processed', 'green')}
-      ${statCard('Avg Fraud Score', (stats.avgFraudScore||0)+'%', 'AI risk score', (stats.avgFraudScore||0)>60?'red':'')}
+      ${statCard('Avg Fraud Score', (stats.avgFraudScore || 0) + '%', 'AI risk score', (stats.avgFraudScore || 0) > 60 ? 'red' : '')}
     </div>
     ${renderClaimsSection(claims, true)}`;
   }
@@ -438,19 +438,19 @@ async function renderInsurerTab(tab, body) {
       <div class="section-header"><div class="section-title">Claims Report</div></div>
       <div class="section-body">
         ${infoRow('Total Claims Filed', stats.total)}
-        ${infoRow('Total Value', '₹'+((stats.totalValue||0)).toLocaleString())}
+        ${infoRow('Total Value', '₹' + ((stats.totalValue || 0)).toLocaleString())}
         ${infoRow('Approved Claims', stats.approved)}
         ${infoRow('Rejected Claims', stats.rejected)}
         ${infoRow('Pending Review', stats.pending)}
-        ${infoRow('Avg Fraud Score', (stats.avgFraudScore||0)+'%')}
-        ${infoRow('Approval Rate', stats.total > 0 ? Math.round(stats.approved/stats.total*100)+'%' : '—')}
+        ${infoRow('Avg Fraud Score', (stats.avgFraudScore || 0) + '%')}
+        ${infoRow('Approval Rate', stats.total > 0 ? Math.round(stats.approved / stats.total * 100) + '%' : '—')}
       </div>
     </div>`;
   }
 }
 
-// ─── HTML BUILDERS ────────────────────────────────────────────────────────────
-function statCard(label, value, hint='', hintClass='') {
+// HTML BUILDERS
+function statCard(label, value, hint = '', hintClass = '') {
   return `<div class="stat-card">
     <div class="stat-card-bg">■</div>
     <div class="stat-label">${label}</div>
@@ -472,24 +472,24 @@ function treatmentCardHTML(t, claims = []) {
   const approvedClaim = claims.find(c => c.treatment_id === t.id && c.status === 'approved');
   const claimBtn = approvedClaim
     ? `<span style="font-size:12px;color:var(--green2);display:flex;align-items:center;gap:5px;">✓ Claim Approved</span>`
-    : `<button class="action-btn green" onclick="openClaimModal('${t.id}', ${t.amount_spent||0})">Apply for Claim</button>`;
+    : `<button class="action-btn green" onclick="openClaimModal('${t.id}', ${t.amount_spent || 0})">Apply for Claim</button>`;
 
   return `
   <div class="treatment-card">
     <div class="treatment-top">
       <div>
-        <div class="treatment-hospital">${t.hospital_name||t.hospital_unique_id||'—'}</div>
-        <div class="treatment-date">${fmtDate(t.admission_date||t.created_at)}</div>
+        <div class="treatment-hospital">${t.hospital_name || t.hospital_unique_id || '—'}</div>
+        <div class="treatment-date">${fmtDate(t.admission_date || t.created_at)}</div>
       </div>
       <div style="text-align:right;">
-        <div class="treatment-amount">₹${(t.amount_spent||0).toLocaleString()}</div>
-        <div class="treatment-invoice" style="font-family:'DM Mono',monospace;font-size:10px;">${(t.blockchain_tx_hash||'').slice(0,20)}...</div>
+        <div class="treatment-amount">₹${(t.amount_spent || 0).toLocaleString()}</div>
+        <div class="treatment-invoice" style="font-family:'DM Mono',monospace;font-size:10px;">${(t.blockchain_tx_hash || '').slice(0, 20)}...</div>
       </div>
     </div>
     <div class="treatment-grid">
-      <div class="treatment-field"><label>Doctor</label><p>${t.doctor_name||'—'}</p></div>
-      <div class="treatment-field"><label>Diagnosis</label><p>${t.diagnosis||'—'}</p></div>
-      <div class="treatment-field"><label>ICD Codes</label><p>${(t.icd_codes||[]).join(', ')||'—'}</p></div>
+      <div class="treatment-field"><label>Doctor</label><p>${t.doctor_name || '—'}</p></div>
+      <div class="treatment-field"><label>Diagnosis</label><p>${t.diagnosis || '—'}</p></div>
+      <div class="treatment-field"><label>ICD Codes</label><p>${(t.icd_codes || []).join(', ') || '—'}</p></div>
     </div>
     <div class="treatment-actions">
       ${claimBtn}
@@ -503,29 +503,29 @@ function treatmentCardHTML(t, claims = []) {
 function claimCardHTML(c, withActions) {
   const treatment = c.treatments || {};
   const patient = c.users || {};
-  const fraudColor = (c.fraud_score||0) > 70 ? 'var(--red2)' : (c.fraud_score||0) > 40 ? 'var(--amber2)' : 'var(--green2)';
-  const fraudBarColor = (c.fraud_score||0) > 70 ? '#ef4444' : (c.fraud_score||0) > 40 ? '#f59e0b' : '#10b981';
+  const fraudColor = (c.fraud_score || 0) > 70 ? 'var(--red2)' : (c.fraud_score || 0) > 40 ? 'var(--amber2)' : 'var(--green2)';
+  const fraudBarColor = (c.fraud_score || 0) > 70 ? '#ef4444' : (c.fraud_score || 0) > 40 ? '#f59e0b' : '#10b981';
 
   return `
   <div class="claim-card">
     <div class="claim-top">
       <div>
         <div style="font-weight:600;font-size:14px;">${patient.name || c.patient_unique_id}</div>
-        <div class="claim-id">${(c.id||'').slice(0,8)} · ${c.policy_number||'No Policy'}</div>
+        <div class="claim-id">${(c.id || '').slice(0, 8)} · ${c.policy_number || 'No Policy'}</div>
       </div>
       ${statusBadge(c.status)}
     </div>
     <div class="claim-mid">
-      <div class="claim-field"><label>Amount</label><p style="font-weight:700;color:var(--blue2);">₹${(c.claimed_amount||0).toLocaleString()}</p></div>
+      <div class="claim-field"><label>Amount</label><p style="font-weight:700;color:var(--blue2);">₹${(c.claimed_amount || 0).toLocaleString()}</p></div>
       <div class="claim-field"><label>Submitted</label><p>${fmtDate(c.submitted_at)}</p></div>
-      <div class="claim-field"><label>Diagnosis</label><p>${treatment.diagnosis||'—'}</p></div>
+      <div class="claim-field"><label>Diagnosis</label><p>${treatment.diagnosis || '—'}</p></div>
     </div>
     ${c.fraud_score !== undefined ? `
     <div style="margin-bottom:12px;">
       <div style="font-size:10px;color:var(--text3);letter-spacing:.06em;text-transform:uppercase;margin-bottom:6px;">AI Fraud Risk Score</div>
       <div class="fraud-score">
-        <div class="fraud-bar-bg"><div class="fraud-bar" style="width:${c.fraud_score||0}%;background:${fraudBarColor};"></div></div>
-        <span class="fraud-score-val" style="color:${fraudColor};">${c.fraud_score||0}%</span>
+        <div class="fraud-bar-bg"><div class="fraud-bar" style="width:${c.fraud_score || 0}%;background:${fraudBarColor};"></div></div>
+        <span class="fraud-score-val" style="color:${fraudColor};">${c.fraud_score || 0}%</span>
       </div>
     </div>` : ''}
     ${c.ai_explanation ? `<div style="font-size:12px;color:var(--text2);margin-bottom:12px;background:rgba(255,255,255,.02);border:1px solid var(--border);border-radius:8px;padding:10px;line-height:1.5;">💬 ${c.ai_explanation}</div>` : ''}
@@ -549,8 +549,8 @@ function renderClaimsSection(claims, withActions) {
 }
 
 function statusBadge(s) {
-  const map = { pending:'⏳ Pending', approved:'✓ Approved', rejected:'✕ Rejected', under_review:'🔍 Under Review' };
-  return `<span class="status ${s}">${map[s]||s}</span>`;
+  const map = { pending: '⏳ Pending', approved: '✓ Approved', rejected: '✕ Rejected', under_review: '🔍 Under Review' };
+  return `<span class="status ${s}">${map[s] || s}</span>`;
 }
 
 function infoRow(label, value) {
@@ -566,35 +566,35 @@ function emptyState(msg) {
 
 function fmtDate(d) {
   if (!d) return '—';
-  try { return new Date(d).toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' }); }
-  catch(e) { return d; }
+  try { return new Date(d).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }); }
+  catch (e) { return d; }
 }
 
-// ─── MODALS ───────────────────────────────────────────────────────────────────
+// MODALS
 function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
 function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
 
-['modal-claim','modal-upload','modal-claim-detail','modal-register','modal-credentials'].forEach(id => {
+['modal-claim', 'modal-upload', 'modal-claim-detail', 'modal-register', 'modal-credentials'].forEach(id => {
   const el = document.getElementById(id);
-  if (el) el.addEventListener('click', function(e) { if (e.target === this) closeModal(id); });
+  if (el) el.addEventListener('click', function (e) { if (e.target === this) closeModal(id); });
 });
 
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') {
-    ['modal-claim','modal-upload','modal-claim-detail','modal-register','modal-credentials'].forEach(id => closeModal(id));
+    ['modal-claim', 'modal-upload', 'modal-claim-detail', 'modal-register', 'modal-credentials'].forEach(id => closeModal(id));
   }
 });
 
 function openClaimModal(treatmentId, amount) {
   const sel = document.getElementById('claim-treatment-id');
   sel.innerHTML = cachedTreatments.length
-    ? cachedTreatments.map(t => `<option value="${t.id}" ${t.id===treatmentId?'selected':''}>${t.hospital_name||t.hospital_unique_id||'Unknown Hospital'} — ${t.diagnosis} (₹${t.amount_spent||0})</option>`).join('')
+    ? cachedTreatments.map(t => `<option value="${t.id}" ${t.id === treatmentId ? 'selected' : ''}>${t.hospital_name || t.hospital_unique_id || 'Unknown Hospital'} — ${t.diagnosis} (₹${t.amount_spent || 0})</option>`).join('')
     : '<option value="">No treatments available. Load treatments first.</option>';
   if (amount) document.getElementById('claim-amount').value = amount;
   openModal('modal-claim');
 }
 
-// ─── SUBMIT CLAIM ─────────────────────────────────────────────────────────────
+// SUBMIT CLAIM
 async function doSubmitClaim() {
   const treatmentId = document.getElementById('claim-treatment-id').value;
   const insurerUniqueId = document.getElementById('claim-insurer-id').value.trim();
@@ -616,7 +616,7 @@ async function doSubmitClaim() {
   }
 }
 
-// ─── UPLOAD TREATMENT ─────────────────────────────────────────────────────────
+// UPLOAD TREATMENT
 async function doUploadTreatment() {
   const patientUniqueId = document.getElementById('upload-patient-id').value.trim();
   const diagnosis = document.getElementById('upload-diagnosis').value.trim();
@@ -669,10 +669,10 @@ async function doUploadTreatment() {
     if (!res.ok) throw new Error(data.error || 'Upload failed');
 
     const fileMsg = prescriptionFile || invoiceFile ? ' Files stored on IPFS.' : '';
-    showToast('Treatment uploaded! TX: ' + (data.txHash||'').slice(0,20) + fileMsg, 'success');
+    showToast('Treatment uploaded! TX: ' + (data.txHash || '').slice(0, 20) + fileMsg, 'success');
     closeModal('modal-upload');
-    ['upload-patient-id','upload-diagnosis','upload-doctor','upload-hospital-name','upload-icd','upload-admission','upload-discharge','upload-amount'].forEach(id => document.getElementById(id).value = '');
-    ['upload-prescription','upload-invoice','upload-lab-reports','upload-photos'].forEach(id => document.getElementById(id).value = '');
+    ['upload-patient-id', 'upload-diagnosis', 'upload-doctor', 'upload-hospital-name', 'upload-icd', 'upload-admission', 'upload-discharge', 'upload-amount'].forEach(id => document.getElementById(id).value = '');
+    ['upload-prescription', 'upload-invoice', 'upload-lab-reports', 'upload-photos'].forEach(id => document.getElementById(id).value = '');
     switchTab('overview', document.querySelector('.sidebar-item'));
   } catch (err) {
     showToast(err.message, 'error');
@@ -682,7 +682,7 @@ async function doUploadTreatment() {
   }
 }
 
-// ─── REGISTER PATIENT ─────────────────────────────────────────────────────────
+// REGISTER PATIENT
 async function doRegisterPatient() {
   const name = document.getElementById('reg-name').value.trim();
   const age = document.getElementById('reg-age').value;
@@ -709,15 +709,15 @@ async function doRegisterPatient() {
         <p style="color:var(--text2);font-size:13px;">Patient registered successfully. Share these credentials securely:</p>
       </div>
       <div style="background:rgba(16,185,129,.06);border:1px solid rgba(16,185,129,.2);border-radius:12px;padding:18px;margin-bottom:16px;">
-        ${infoRow('Patient Name', data.credentials?.name||name)}
-        ${infoRow('Patient ID', data.credentials?.patientId||'—')}
-        ${infoRow('Initial Password', data.credentials?.initialPassword||initialPassword)}
+        ${infoRow('Patient Name', data.credentials?.name || name)}
+        ${infoRow('Patient ID', data.credentials?.patientId || '—')}
+        ${infoRow('Initial Password', data.credentials?.initialPassword || initialPassword)}
       </div>
       <p style="color:var(--amber2);font-size:12px;text-align:center;">⚠ Share these credentials securely with the patient. They should change the password on first login.</p>`;
     openModal('modal-credentials');
 
     // Clear form fields
-    ['reg-name','reg-age','reg-email','reg-phone','reg-policy','reg-insurer','reg-password'].forEach(id => document.getElementById(id).value='');
+    ['reg-name', 'reg-age', 'reg-email', 'reg-phone', 'reg-policy', 'reg-insurer', 'reg-password'].forEach(id => document.getElementById(id).value = '');
     showToast('Patient registered successfully!', 'success');
 
     // ── AUTO-REFRESH patient list if currently on overview or patients tab ──
@@ -733,7 +733,7 @@ async function doRegisterPatient() {
             const statValues = document.querySelectorAll('.stat-value');
             if (statValues[0]) statValues[0].textContent = updatedPatients.length;
           }
-        } catch(_) { /* silently ignore */ }
+        } catch (_) { /* silently ignore */ }
       } else if (currentTab === 'patients') {
         // Reload the whole patients tab
         try {
@@ -743,7 +743,7 @@ async function doRegisterPatient() {
           // Update section title count
           const sectionTitle = document.querySelector('.section-title');
           if (sectionTitle) sectionTitle.textContent = `All Patients (${updatedPatients.length})`;
-        } catch(_) { /* silently ignore */ }
+        } catch (_) { /* silently ignore */ }
       }
     }
   } catch (err) {
@@ -751,7 +751,7 @@ async function doRegisterPatient() {
   }
 }
 
-// ─── RESOLVE CLAIM ────────────────────────────────────────────────────────────
+// RESOLVE CLAIM
 async function doResolveClaim(claimId, decision) {
   let reason = null;
   if (decision === 'rejected') {
@@ -767,7 +767,7 @@ async function doResolveClaim(claimId, decision) {
   }
 }
 
-// ─── VIEW CLAIM DETAIL ────────────────────────────────────────────────────────
+// VIEW CLAIM DETAIL
 async function viewClaimDetail(claimId) {
   try {
     let claim;
@@ -775,7 +775,7 @@ async function viewClaimDetail(claimId) {
       claim = await apiCall('GET', `/insurer/claims/${claimId}`);
     } else {
       const claims = await apiCall('GET', '/patient/claims');
-      claim = claims.find(c=>c.id===claimId);
+      claim = claims.find(c => c.id === claimId);
     }
     if (!claim) { showToast('Claim not found', 'error'); return; }
 
@@ -784,23 +784,23 @@ async function viewClaimDetail(claimId) {
     document.getElementById('claim-detail-body').innerHTML = `
       <div class="modal-section-title">Claim Information</div>
       <div style="margin-bottom:20px;">
-        ${infoRow('Claim ID', claim.id||'—')}
+        ${infoRow('Claim ID', claim.id || '—')}
         ${infoRow('Status', statusBadge(claim.status))}
-        ${infoRow('Patient', p.name||claim.patient_unique_id)}
-        ${infoRow('Policy Number', claim.policy_number||'—')}
-        ${infoRow('Claimed Amount', '₹'+(claim.claimed_amount||0).toLocaleString())}
+        ${infoRow('Patient', p.name || claim.patient_unique_id)}
+        ${infoRow('Policy Number', claim.policy_number || '—')}
+        ${infoRow('Claimed Amount', '₹' + (claim.claimed_amount || 0).toLocaleString())}
         ${infoRow('Submitted', fmtDate(claim.submitted_at))}
         ${claim.resolved_at ? infoRow('Resolved', fmtDate(claim.resolved_at)) : ''}
-        ${claim.fraud_score !== undefined ? infoRow('AI Fraud Score', claim.fraud_score+'%') : ''}
+        ${claim.fraud_score !== undefined ? infoRow('AI Fraud Score', claim.fraud_score + '%') : ''}
       </div>
       ${t.diagnosis ? `
       <div class="modal-section-title">Treatment Details</div>
       <div style="margin-bottom:20px;">
-        ${infoRow('Hospital', t.hospital_name||'—')}
-        ${infoRow('Doctor', t.doctor_name||'—')}
-        ${infoRow('Diagnosis', t.diagnosis||'—')}
-        ${infoRow('Period', fmtDate(t.admission_date)+' → '+fmtDate(t.discharge_date))}
-        ${infoRow('Amount Spent', '₹'+(t.amount_spent||0).toLocaleString())}
+        ${infoRow('Hospital', t.hospital_name || '—')}
+        ${infoRow('Doctor', t.doctor_name || '—')}
+        ${infoRow('Diagnosis', t.diagnosis || '—')}
+        ${infoRow('Period', fmtDate(t.admission_date) + ' → ' + fmtDate(t.discharge_date))}
+        ${infoRow('Amount Spent', '₹' + (t.amount_spent || 0).toLocaleString())}
         ${t.blockchain_tx_hash ? infoRow('Blockchain TX', `<span class="hash-badge">⛓ ${t.blockchain_tx_hash}</span>`) : ''}
         ${(t.prescription_cid && !t.prescription_cid.startsWith('MOCK')) || (t.invoice_cid && !t.invoice_cid.startsWith('MOCK')) ? `
         <div style="padding:11px 0;border-bottom:1px solid var(--border);">
@@ -822,7 +822,7 @@ async function viewClaimDetail(claimId) {
   }
 }
 
-// ─── DOWNLOAD TREATMENT FILES (Patient) ──────────────────────────────────────
+// DOWNLOAD TREATMENT FILES (Patient)
 async function downloadTreatmentFile(treatmentId, type) {
   try {
     showToast('Fetching file from IPFS...', 'info');
@@ -842,13 +842,13 @@ async function downloadTreatmentFile(treatmentId, type) {
     a.click();
     a.remove();
     URL.revokeObjectURL(url);
-    showToast(`${type.charAt(0).toUpperCase()+type.slice(1)} downloaded successfully.`, 'success');
+    showToast(`${type.charAt(0).toUpperCase() + type.slice(1)} downloaded successfully.`, 'success');
   } catch (err) {
     showToast(err.message, 'error');
   }
 }
 
-// ─── DOWNLOAD TREATMENT FILES (Insurer) ──────────────────────────────────────
+// DOWNLOAD TREATMENT FILES (Insurer)
 async function downloadInsurerFile(treatmentId, type) {
   try {
     showToast('Fetching file from IPFS...', 'info');
@@ -868,7 +868,7 @@ async function downloadInsurerFile(treatmentId, type) {
     a.click();
     a.remove();
     URL.revokeObjectURL(url);
-    showToast(`${type.charAt(0).toUpperCase()+type.slice(1)} downloaded successfully.`, 'success');
+    showToast(`${type.charAt(0).toUpperCase() + type.slice(1)} downloaded successfully.`, 'success');
   } catch (err) {
     showToast(err.message, 'error');
   }

@@ -1,16 +1,9 @@
-// controllers/authController.js
-// ==========================================
-// WHY: Handles login for all three user types (patient, hospital, insurer).
-// Uses the ID prefix (PAT/HSP/INS) to determine role automatically.
-// Returns a JWT token valid for 24 hours.
-// ==========================================
-
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { v4: uuidv4 } = require('uuid');
 const supabase = require('../config/supabase');
 
-// ---- HELPER: Determine role from ID prefix ----
+// Role from ID prefix
 function getRoleFromId(uniqueId) {
   if (uniqueId.startsWith('PAT-')) return 'patient';
   if (uniqueId.startsWith('HSP-')) return 'hospital';
@@ -18,7 +11,7 @@ function getRoleFromId(uniqueId) {
   return null;
 }
 
-// ---- HELPER: Generate unique PAT-XXXXXX ID ----
+// Unique PAT-XXXXXX ID
 async function generateUniqueId(prefix) {
   let id, exists;
   do {
