@@ -1,5 +1,4 @@
-# HEALTHCHAIN
-Here's the humanized version:
+
 
 **HealthChain — Blockchain-Secured Medical Records System**
 
